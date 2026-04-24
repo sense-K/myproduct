@@ -122,7 +122,14 @@
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/api/cert/A3F8D9/pdf)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/)",
       "Bash(git rm *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat: 마이프로덕트 초기 설정 *)",
+      "Bash(git config *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/@opennextjs/cloudflare/package.json'\\).version\\)\")",
+      "Bash(git commit -m 'fix: @cloudflare/next-on-pages → @opennextjs/cloudflare \\(Next.js 16 지원\\) *)"
     ]
   }
 }
