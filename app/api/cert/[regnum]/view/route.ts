@@ -23,8 +23,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ regnum:
     .eq("registration_number", regnum)
     .maybeSingle();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const certRow = cert as any;
   const data: CertData = cert
-    ? { ...cert, verify_url: `${SITE_URL}/registry/${cert.registration_number}` }
+    ? { ...certRow, verify_url: `${SITE_URL}/registry/${certRow.registration_number}` }
     : {
         registration_number: regnum,
         content_hash: "MOCK-HASH-" + regnum,

@@ -5,21 +5,25 @@ import { CAREER_TAGS } from "@/lib/constants/user";
 
 export const dynamic = "force-dynamic";
 
+type UserRow = { nickname: string; career_tag: string; created_at: string };
+type CreditRow = { amount: number };
+
 async function getMeData(userId: string) {
   const admin = createAdminClient();
 
+  // gen:types 실행 전까지 as unknown as 캐스팅으로 타입 명시
   const [profile, credits, productCount, givenCount, certCount] = await Promise.all([
-    admin.from("users").select("nickname, career_tag, created_at").eq("id", userId).maybeSingle(),
-    admin.from("credits").select("amount").eq("user_id", userId),
+    admin.from("users").select("nickname, career_tag, created_at").eq("id", userId).maybeSingle() as unknown as Promise<{ data: UserRow | null }>,
+    admin.from("credits").select("amount").eq("user_id", userId) as unknown as Promise<{ data: CreditRow[] | null }>,
     admin.from("products").select("id", { count: "exact", head: true }).eq("owner_id", userId).eq("status", "public"),
     admin.from("feedbacks").select("id", { count: "exact", head: true }).eq("reviewer_id", userId),
     admin.from("certificates").select("id", { count: "exact", head: true }).in(
       "product_id",
-      (await admin.from("products").select("id").eq("owner_id", userId)).data?.map(p => p.id) ?? [],
+      ((await admin.from("products").select("id").eq("owner_id", userId)) as unknown as { data: { id: string }[] | null }).data?.map(p => p.id) ?? [],
     ),
   ]);
 
-  const balance = (credits.data ?? []).reduce((s, r) => s + r.amount, 0);
+  const balance = (credits.data ?? []).reduce((s: number, r: CreditRow) => s + r.amount, 0);
   const careerLabel = CAREER_TAGS.find(t => t.value === profile.data?.career_tag)?.label ?? "";
 
   return {

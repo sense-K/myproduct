@@ -129,7 +129,10 @@
       "Bash(git branch *)",
       "Bash(git push *)",
       "Bash(node -e \"console.log\\(require\\('./node_modules/@opennextjs/cloudflare/package.json'\\).version\\)\")",
-      "Bash(git commit -m 'fix: @cloudflare/next-on-pages → @opennextjs/cloudflare \\(Next.js 16 지원\\) *)"
+      "Bash(git commit -m 'fix: @cloudflare/next-on-pages → @opennextjs/cloudflare \\(Next.js 16 지원\\) *)",
+      "Bash(git commit -m 'fix: add open-next.config.ts required for @opennextjs/cloudflare build *)",
+      "Bash(git commit -m 'fix: use defineCloudflareConfig helper for open-next config *)",
+      "Bash(git commit -m 'fix: use @opennextjs/cloudflare context API and fix Supabase query types *)"
     ]
   }
 }

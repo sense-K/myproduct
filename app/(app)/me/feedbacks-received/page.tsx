@@ -40,8 +40,12 @@ export default async function FeedbacksReceivedPage() {
       .eq("owner_id", user.id)
       .order("created_at", { ascending: false });
 
-    if (myProducts && myProducts.length > 0) {
-      for (const product of myProducts) {
+    // gen:types 실행 전까지 Supabase 쿼리 결과를 명시적으로 캐스팅
+    type ProductRow = { id: string; name: string; slug: string };
+    const products = (myProducts ?? []) as ProductRow[];
+
+    if (products.length > 0) {
+      for (const product of products) {
         const { data: fbs } = await admin
           .from("feedbacks")
           .select("id, submitted_at, reviewer_career_tag_snapshot, feedback_answers(question_number, answer_text, answer_choice, answer_scale)")

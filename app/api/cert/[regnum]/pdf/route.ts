@@ -10,8 +10,8 @@ export const runtime = "edge";
 // CF Pages 환경에서만 사용 가능. 로컬 Node.js dev에서는 null 반환.
 async function getCFBrowser(): Promise<unknown | null> {
   try {
-    const { getRequestContext } = await import("@cloudflare/next-on-pages");
-    const ctx = getRequestContext();
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const ctx = await getCloudflareContext({ async: true });
     return (ctx.env as Record<string, unknown>)?.BROWSER ?? null;
   } catch {
     // 로컬 dev 또는 CF 환경 아님 → null
@@ -33,7 +33,9 @@ async function fetchCertData(regnum: string): Promise<CertData | null> {
     .maybeSingle();
 
   if (!data) return null;
-  return { ...data, verify_url: `${SITE_URL}/registry/${data.registration_number}` };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const row = data as unknown as Record<string, string>;
+  return { ...row, verify_url: `${SITE_URL}/registry/${row.registration_number}` } as CertData;
 }
 
 // ─── Route Handler ────────────────────────────────────────────────────────────
@@ -116,7 +118,8 @@ export async function GET(
       // 스토리지 업로드 실패는 무시 — PDF는 어차피 반환함
     }
 
-    return new NextResponse(pdf, {
+    // Edge runtime은 Buffer 대신 Uint8Array를 BodyInit으로 요구
+    return new NextResponse(new Uint8Array(pdf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="certificate-${regnum}.pdf"`,
