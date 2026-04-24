@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마이프로덕트 — 제품 상세 와이어프레임</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FBF6ED;
+    --ink: #1a1a1a;
+    --ink-60: #5a5a5a;
+    --ink-40: #858585;
+    --ink-20: #d0ccc3;
+    --ink-10: #e8e4db;
+    --accent: #F04D2E;
+    --accent-soft: #FFE8E0;
+    --sage: #7A8871;
+    --sage-soft: #E8EDE4;
+    --paper: #FFFFFF;
+    --radius-lg: 28px;
+    --radius-md: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.5;
+    padding: 40px 20px 80px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header .tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    background: var(--accent);
+    color: var(--paper);
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--ink-60);
+  }
+
+  .annotation {
+    margin: 48px 0 16px;
+    padding: 0 8px;
+  }
+
+  .annotation .step-num {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 10px;
+  }
+
+  .annotation h2 {
+    display: inline-block;
+    font-size: 17px;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+
+  .annotation p {
+    font-size: 13px;
+    color: var(--ink-60);
+    margin-top: 8px;
+    padding-left: 38px;
+    line-height: 1.6;
+  }
+
+  /* Phone frame */
+  .phone {
+    background: var(--ink);
+    border-radius: var(--radius-lg);
+    padding: 10px;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.08);
+    margin: 0 auto;
+    max-width: 360px;
+  }
+
+  .phone-screen {
+    background: var(--cream);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .top-bar .status {
+    font-size: 10px;
+    color: var(--ink-60);
+  }
+
+  /* Nav bar (slim, with back) */
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 8px 14px 12px;
+    border-bottom: 1px solid var(--ink-10);
+    background: var(--cream);
+    gap: 10px;
+  }
+
+  .back-btn {
+    font-size: 18px;
+    color: var(--ink);
+    background: none;
+    border: none;
+    padding: 4px 6px;
+    cursor: pointer;
+  }
+
+  .brand {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    flex: 1;
+    text-align: center;
+  }
+
+  .brand::before {
+    content: "●";
+    color: var(--accent);
+    margin-right: 5px;
+  }
+
+  .share-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-60);
+    background: none;
+    border: 1px solid var(--ink-10);
+    padding: 6px 10px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+
+  /* HERO / Product header */
+  .product-hero {
+    padding: 22px 22px 18px;
+    background: var(--paper);
+  }
+
+  .product-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #2D5F3F 0%, #3d7a52 100%);
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cat-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255,255,255,0.95);
+    color: var(--ink);
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  .product-name {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .product-tagline {
+    font-size: 14px;
+    color: var(--ink-60);
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  /* Core value badges — prominent */
+  .core-badges {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .core-badge {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    line-height: 1.35;
+  }
+
+  .core-badge.certify {
+    background: var(--sage-soft);
+    color: #3a5237;
+  }
+
+  .core-badge.feedback {
+    background: var(--accent-soft);
+    color: #93301a;
+  }
+
+  .core-badge-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .core-badge-text b {
+    display: block;
+    font-weight: 800;
+    font-size: 13px;
+    margin-bottom: 1px;
+  }
+
+  /* External link button — primary CTA for visitors */
+  .ext-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+
+  .ext-link-btn .url {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.7;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+
+  .feedback-cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 14px;
+    background: var(--cream);
+    color: var(--ink);
+    border: 1.5px solid var(--ink-10);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* STATS row */
+  .stats-section {
+    padding: 18px 22px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--ink-10);
+    border-top: 1px solid var(--ink-10);
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+  }
+
+  .stat-block {
+    flex: 1;
+    padding: 0 4px;
+  }
+
+  .stat-num {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 3px;
+  }
+
+  .stat-num.accent {
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--ink-60);
+    font-weight: 500;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--ink-10);
+  }
+
+  /* Section general */
+  .section {
+    padding: 24px 22px 22px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink-10);
+  }
+
+  .section.cream-bg {
+    background: var(--cream);
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-40);
+    margin-bottom: 10px;
+  }
+
+  .section-label .icon {
+    color: var(--accent);
+    margin-right: 4px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  /* Maker quote */
+  .maker-quote {
+    position: relative;
+    padding: 16px 18px;
+    background: var(--cream);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .maker-quote::before {
+    content: "\201C";
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    font-size: 38px;
+    color: var(--accent);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+
+  .maker-meta {
+    font-size: 11px;
+    color: var(--ink-60);
+    font-weight: 500;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 4px;
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 28px;
+    padding-bottom: 20px;
+  }
+
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 18px;
+    bottom: -4px;
+    width: 1.5px;
+    background: var(--ink-10);
+  }
+
+  .timeline-item:last-child::before {
+    display: none;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--cream);
+    box-shadow: 0 0 0 1.5px var(--accent);
+  }
+
+  .timeline-item.past .timeline-dot {
+    background: var(--ink-20);
+    box-shadow: 0 0 0 1.5px var(--ink-20);
+  }
+
+  .timeline-item.future .timeline-dot {
+    background: var(--paper);
+    box-shadow: 0 0 0 1.5px var(--ink-20);
+  }
+
+  .timeline-version {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+  }
+
+  .timeline-date {
+    font-size: 10px;
+    color: var(--ink-40);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .timeline-note {
+    font-size: 12px;
+    color: var(--ink-60);
+    line-height: 1.55;
+  }
+
+  /* Feedback summary */
+  .fb-summary {
+    padding: 18px;
+    background: linear-gradient(135deg, #FBF6ED 0%, #F5EEDD 100%);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .fb-count {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .fb-label {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .fb-sub {
+    font-size: 11px;
+    color: var(--ink-60);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .fb-reviewer-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+
+  .fb-tag {
+    background: var(--paper);
+    border: 1px solid var(--ink-10);
+    font-size: 10px;
+    padding: 4px 9px;
+    border-radius: 100px;
+    color: var(--ink-60);
+    font-weight: 600;
+  }
+
+  /* Certificate section */
+  .cert-card {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 18px;
+    border-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cert-card::before {
+    content: "🛡️";
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    font-size: 90px;
+    opacity: 0.08;
+  }
+
+  .cert-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .cert-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .cert-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 11px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .cert-row:first-of-type {
+    border-top: none;
+  }
+
+  .cert-row-key {
+    color: #9a958a;
+  }
+
+  .cert-row-val {
+    font-family: 'SF Mono', Consolas, monospace;
+    color: var(--cream);
+    font-weight: 600;
+  }
+
+  .cert-cta {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Related products */
+  .related-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .rel-card {
+    background: var(--paper);
+    border: 1px solid var(--ink-10);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .rel-thumb {
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 11px;
+    text-align: center;
+    padding: 8px;
+  }
+
+  .rel-thumb.v1 { background: linear-gradient(135deg, #D4A574 0%, #b88751 100%); }
+  .rel-thumb.v2 { background: linear-gradient(135deg, #5B6B8A 0%, #3d4d6b 100%); }
+
+  .rel-body {
+    padding: 10px 11px 11px;
+  }
+
+  .rel-name {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .rel-desc {
+    font-size: 10px;
+    color: var(--ink-60);
+    line-height: 1.4;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 28px;
+  }
+
+  .rel-badges {
+    display: flex;
+    gap: 4px;
+  }
+
+  .badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 100px;
+    font-weight: 600;
+  }
+
+  .badge.certify {
+    background: var(--sage-soft);
+    color: #4a6147;
+  }
+
+  .badge.feedback {
+    background: var(--accent-soft);
+    color: #a53418;
+  }
+
+  /* Sticky CTA (at bottom of product page) */
+  .sticky-cta {
+    padding: 16px 22px 20px;
+    background: var(--paper);
+    border-top: 1px solid var(--ink-10);
+  }
+
+  .cta-sub {
+    font-size: 11px;
+    color: var(--ink-60);
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--paper);
+    border: none;
+    padding: 15px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 800;
+    font-family: inherit;
+    width: 100%;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+  }
+
+  /* SEO hint + notes */
+  .seo-hint {
+    margin: 16px 0;
+    background: var(--sage-soft);
+    border-left: 3px solid var(--sage);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #4a6147;
+    border-radius: 4px;
+    line-height: 1.6;
+  }
+
+  .seo-hint strong {
+    color: #2c4229;
+    display: block;
+    margin-bottom: 3px;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .note {
+    margin-top: 30px;
+    padding: 24px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    border: 1.5px dashed var(--ink-10);
+    font-size: 13px;
+    color: var(--ink-60);
+    line-height: 1.7;
+  }
+
+  .note strong {
+    color: var(--ink);
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .note ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .note li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .note li::before {
+    content: "·";
+    position: absolute;
+    left: 6px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .owner-note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 14px 16px;
+    margin: 20px 0;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #93301a;
+    border-radius: 4px;
+  }
+
+  .owner-note strong {
+    display: block;
+    color: #6b2012;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <span class="tag">WIREFRAME B · PRODUCT DETAIL</span>
+    <h1>제품 상세 페이지</h1>
+    <p>공개 뷰 · SEO 자산의 핵심 · URL: /p/undercov</p>
+  </header>
+
+  <div class="annotation">
+    <span class="step-num">B</span>
+    <h2>제품 상세 (/p/undercov)</h2>
+    <p>방문자가 구글 검색으로 직접 도착하는 페이지. SEO 자산의 90%가 여기서 나옴. "원본 링크 가기"와 "피드백 주기" 두 가지 전환 설계.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar">
+        <span>9:41</span>
+        <div class="status">●●●</div>
+      </div>
+
+      <!-- NAV (slim) -->
+      <div class="nav">
+        <button class="back-btn">←</button>
+        <div class="brand">마이프로덕트</div>
+        <button class="share-btn">공유</button>
+      </div>
+
+      <!-- PRODUCT HERO -->
+      <div class="product-hero">
+        <div class="product-thumb">
+          <span class="cat-label">SaaS</span>
+          undercov.kr
+        </div>
+
+        <h1 class="product-name">언더커버</h1>
+        <p class="product-tagline">프랜차이즈 점주를 위한 익명 커뮤니티와 매출 벤치마킹 서비스</p>
+
+        <!-- CORE VALUE BADGES (prominent) -->
+        <div class="core-badges">
+          <div class="core-badge certify">
+            <span class="core-badge-icon">🛡️</span>
+            <span class="core-badge-text">
+              <b>등록 증명</b>
+              2026-04-23
+            </span>
+          </div>
+          <div class="core-badge feedback">
+            <span class="core-badge-icon">💬</span>
+            <span class="core-badge-text">
+              <b>피드백 12</b>
+              메이커 검토
+            </span>
+          </div>
+        </div>
+
+        <!-- External link button (primary for search visitors) -->
+        <button class="ext-link-btn">
+          <span>원본 사이트로 가기 →</span>
+          <span class="url">undercov.kr</span>
+        </button>
+
+        <!-- Secondary: feedback CTA -->
+        <button class="feedback-cta-btn">
+          💬 이 제품에 피드백 주기
+        </button>
+      </div>
+
+      <!-- STATS row -->
+      <div class="stats-section">
+        <div class="stat-block">
+          <div class="stat-num">234</div>
+          <div class="stat-label">조회수</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-block">
+          <div class="stat-num accent">12</div>
+          <div class="stat-label">피드백</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-block">
+          <div class="stat-num">89</div>
+          <div class="stat-label">원본 이동</div>
+        </div>
+      </div>
+
+      <!-- MAKER'S QUOTE -->
+      <div class="section">
+        <div class="section-label"><span class="icon">✎</span> 만든 사람 한마디</div>
+        <div class="maker-quote">
+          프차 점주 4년차, 혼자 매출 고민하다가 잠 못 잤던 밤에 만들기 시작했어요. 같은 브랜드 점주들과 솔직하게 얘기할 곳이 없어서요.
+        </div>
+        <div class="maker-meta">익명 · 창업 4년차 메이커</div>
+      </div>
+
+      <!-- GROWTH TIMELINE -->
+      <div class="section cream-bg">
+        <div class="section-label"><span class="icon">🌱</span> 성장 기록</div>
+        <h2 class="section-title">이 제품은 이렇게 자랐어요</h2>
+
+        <div class="timeline">
+          <div class="timeline-item future">
+            <div class="timeline-dot"></div>
+            <div class="timeline-version">v1.2 준비 중</div>
+            <div class="timeline-date">예정</div>
+            <div class="timeline-note">피드백 반영: 온보딩 단순화, 동네별 필터 추가</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-version">v1.1 · UI 개선 + 매출 입력 간소화</div>
+            <div class="timeline-date">2026-05-02 · 피드백 7건 반영</div>
+            <div class="timeline-note">피드백에서 가장 많이 언급된 "첫 화면 이해 어려움"을 수정했어요. 카피도 다듬었습니다.</div>
+          </div>
+          <div class="timeline-item past">
+            <div class="timeline-dot"></div>
+            <div class="timeline-version">v1.0 · 최초 등록</div>
+            <div class="timeline-date">2026-04-23</div>
+            <div class="timeline-note">첫 공개. 프랜차이즈 점주 40여 분이 먼저 테스트 중이었어요.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEEDBACK SUMMARY -->
+      <div class="section">
+        <div class="section-label"><span class="icon">💬</span> 메이커들의 검토</div>
+
+        <div class="fb-summary">
+          <div class="fb-count">12</div>
+          <div class="fb-label">명의 동료 메이커가 이 제품을 검토했어요</div>
+          <div class="fb-sub">
+            자세한 내용은 창업자만 열람 가능해요.<br>
+            당신도 피드백을 남기면 등록권 +1을 얻어요.
+          </div>
+
+          <div class="fb-reviewer-tags">
+            <span class="fb-tag">창업 5년차 · 3</span>
+            <span class="fb-tag">창업 2~3년차 · 5</span>
+            <span class="fb-tag">창업 1년 미만 · 4</span>
+          </div>
+
+          <button class="feedback-cta-btn" style="margin-top:4px; background:var(--ink); color:var(--cream); border:none;">
+            피드백 작성하고 등록권 얻기 →
+          </button>
+        </div>
+      </div>
+
+      <!-- CERTIFICATE -->
+      <div class="section cream-bg">
+        <div class="section-label"><span class="icon">🛡️</span> 등록 증명</div>
+
+        <div class="cert-card">
+          <div class="cert-label">타임스탬프 증명서</div>
+          <div class="cert-title">이 제품은 2026년 4월 23일 14:30:12에<br>마이프로덕트에 등록되었습니다.</div>
+
+          <div class="cert-row">
+            <span class="cert-row-key">등록번호</span>
+            <span class="cert-row-val">#A3F8D9</span>
+          </div>
+          <div class="cert-row">
+            <span class="cert-row-key">해시</span>
+            <span class="cert-row-val">a3f8d9c2...</span>
+          </div>
+          <div class="cert-row">
+            <span class="cert-row-key">등록자</span>
+            <span class="cert-row-val">익명 메이커</span>
+          </div>
+
+          <a class="cert-cta">공개 레지스트리에서 검증 →</a>
+        </div>
+      </div>
+
+      <!-- RELATED PRODUCTS (SEO internal linking) -->
+      <div class="section">
+        <div class="section-label">비슷한 분야의 제품</div>
+        <h2 class="section-title">이런 제품도 있어요</h2>
+
+        <div class="related-grid">
+          <div class="rel-card">
+            <div class="rel-thumb v1">자영업 AI 챗봇</div>
+            <div class="rel-body">
+              <div class="rel-name">사장님 상담</div>
+              <div class="rel-desc">자영업자 고민 AI 상담 서비스</div>
+              <div class="rel-badges">
+                <span class="badge certify">🛡️</span>
+                <span class="badge feedback">💬 7</span>
+              </div>
+            </div>
+          </div>
+          <div class="rel-card">
+            <div class="rel-thumb v2">리뷰 모음</div>
+            <div class="rel-body">
+              <div class="rel-name">리뷰 대시보드</div>
+              <div class="rel-desc">자영업자용 고객 리뷰 분석</div>
+              <div class="rel-badges">
+                <span class="badge certify">🛡️</span>
+                <span class="badge feedback">💬 1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky feedback CTA -->
+      <div class="sticky-cta">
+        <div class="cta-sub">이 메이커가 당신의 피드백을 기다려요</div>
+        <button class="btn-primary">💬 피드백 작성하기</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SEO Notes -->
+  <div class="seo-hint">
+    <strong>SEO 구조 설계</strong>
+    · URL: <code>/p/undercov</code> (슬러그 기반, 단순함)<br>
+    · 메타 타이틀: "언더커버 · 프랜차이즈 점주 익명 커뮤니티 | 마이프로덕트"<br>
+    · 메타 설명: 제품 태그라인 + "2026-04-23 등록 · 메이커 12명의 피드백"<br>
+    · OG 태그: 썸네일·제품명·태그라인·배지 정보 (X/카톡 공유 시 리치 프리뷰)<br>
+    · JSON-LD: SoftwareApplication 스키마 + DatePublished<br>
+    · 본문 글자 수: 태그라인 + 만든사람 한마디 + 타임라인 노트 합산 600자 이상 확보<br>
+    · 내부 링크: 카테고리(/feed?cat=saas), 레지스트리(/registry/A3F8D9), 관련 제품 2개, 피드백 페이지
+  </div>
+
+  <div class="owner-note">
+    <strong>창업자 본인 뷰에서 달라지는 점</strong>
+    위 페이지는 구경꾼·검색 유입자 기준이에요. 창업자 본인이 로그인하면:
+    <br>· "피드백 작성" 버튼 자리에 "피드백 12건 전체 읽기" 버튼
+    <br>· "성장 기록"에 "새 버전 추가하기" 버튼
+    <br>· 조회수 상세 (어디서 유입됐는지)
+    <br>· 원본 링크 클릭 수 상세
+    <br>· 피드백에서 가장 자주 언급된 키워드 자동 하이라이트
+  </div>
+
+  <div class="note">
+    <strong>제품 상세 페이지 핵심 설계 결정</strong>
+    <ul>
+      <li><b>두 CTA 분리</b>: "원본 사이트 가기"(구경꾼용, 큰 검정 버튼) + "피드백 주기"(메이커용, 보조 버튼). 각자 목적 다름</li>
+      <li><b>두 가치 배지</b>를 히어로 아래 크게 배치 → 페이지 들어온 순간 핵심 가치 즉시 파악</li>
+      <li><b>성장 타임라인</b>이 이 플랫폼 차별화 요소. 프로덕트헌트/디스퀴엇에 없는 "연재" 포맷</li>
+      <li><b>피드백 내용 비공개</b> 원칙 강조. "창업자만 열람 가능" 명시해서 올리는 심리 장벽 낮춤</li>
+      <li><b>리뷰어 경력 태그</b>("창업 5년차 · 3명")만 공개 → 피드백 질 힌트 주되 익명성 보호</li>
+      <li><b>증명서 카드 검정 배경</b>: 신뢰감·격식 + 시각적 쉼표 역할</li>
+      <li><b>관련 제품</b>: SEO 내부 링크 + 구경꾼 체류 시간 증가</li>
+      <li><b>Sticky CTA</b>: 스크롤 끝까지 읽은 사람을 피드백 작성으로 전환</li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>

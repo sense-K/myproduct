@@ -1,0 +1,109 @@
+// 피드 목 데이터 — DB 연동 후 제거.
+
+export type FeedProduct = {
+  slug: string;
+  name: string;
+  tagline: string;
+  category: string;
+  feedback_count: number;
+  view_count: number;
+  hasCertificate: boolean;
+  gradientFrom: string;
+  gradientTo: string;
+  label: string;
+  created_at: string;
+};
+
+export const FEED_MOCK: FeedProduct[] = [
+  // saas (5)
+  { slug: "undercov", name: "언더커버", tagline: "프랜차이즈 점주를 위한 익명 커뮤니티", category: "saas", feedback_count: 12, view_count: 234, hasCertificate: true, gradientFrom: "#2D5F3F", gradientTo: "#3d7a52", label: "undercov.kr", created_at: "2026-04-23T14:30:12Z" },
+  { slug: "tax-planner", name: "연말정산 전략", tagline: "카드 최적화로 환급액 늘리기", category: "saas", feedback_count: 8, view_count: 189, hasCertificate: true, gradientFrom: "#D4A574", gradientTo: "#b88751", label: "연말정산", created_at: "2026-04-20T10:00:00Z" },
+  { slug: "geulbang", name: "글공방", tagline: "혼자 쓰는 글도 피드백 받자", category: "saas", feedback_count: 24, view_count: 312, hasCertificate: true, gradientFrom: "#C7704E", gradientTo: "#a05535", label: "AI 글쓰기", created_at: "2026-04-18T09:00:00Z" },
+  { slug: "sajangnim", name: "사장님 상담", tagline: "자영업자 고민 AI 상담 서비스", category: "saas", feedback_count: 7, view_count: 143, hasCertificate: true, gradientFrom: "#5B6B8A", gradientTo: "#3d4d6b", label: "AI 상담", created_at: "2026-04-15T11:00:00Z" },
+  { slug: "review-dashboard", name: "리뷰 대시보드", tagline: "자영업자용 고객 리뷰 분석", category: "saas", feedback_count: 1, view_count: 67, hasCertificate: true, gradientFrom: "#8B5A8C", gradientTo: "#6b3d6d", label: "리뷰 분석", created_at: "2026-04-12T08:00:00Z" },
+
+  // mobile_app (5)
+  { slug: "listup", name: "리스트업", tagline: "게임 리롤 계정 시세 조회 및 직거래", category: "mobile_app", feedback_count: 5, view_count: 156, hasCertificate: true, gradientFrom: "#5B6B8A", gradientTo: "#3d4d6b", label: "리스트업", created_at: "2026-04-22T16:00:00Z" },
+  { slug: "walk-diary", name: "걸음일기", tagline: "매일 걸은 길을 지도로 모아요", category: "mobile_app", feedback_count: 18, view_count: 278, hasCertificate: true, gradientFrom: "#4A7C74", gradientTo: "#2e5e56", label: "산책 기록", created_at: "2026-04-19T13:00:00Z" },
+  { slug: "jibjoonghe", name: "집중해", tagline: "공부 타이머 + 학습 통계", category: "mobile_app", feedback_count: 15, view_count: 201, hasCertificate: true, gradientFrom: "#2D5F3F", gradientTo: "#3d7a52", label: "타이머 앱", created_at: "2026-04-17T10:30:00Z" },
+  { slug: "gap-memo", name: "틈새 메모", tagline: "짧은 생각을 빠르게 기록하는 앱", category: "mobile_app", feedback_count: 0, view_count: 42, hasCertificate: false, gradientFrom: "#D4A574", gradientTo: "#b88751", label: "메모앱", created_at: "2026-04-23T09:00:00Z" },
+  { slug: "hanjip-map", name: "한집 지도", tagline: "전세사기 방지용 안전 매물 확인", category: "mobile_app", feedback_count: 3, view_count: 98, hasCertificate: true, gradientFrom: "#8B5A8C", gradientTo: "#6b3d6d", label: "부동산 앱", created_at: "2026-04-14T12:00:00Z" },
+
+  // webtoon_creative (4)
+  { slug: "sagadang-bot", name: "사과당 봇", tagline: "디저트 가게 사장이 만든 AI 레시피 추천", category: "webtoon_creative", feedback_count: 3, view_count: 88, hasCertificate: true, gradientFrom: "#8B5A8C", gradientTo: "#6b3d6d", label: "레시피봇", created_at: "2026-04-21T14:00:00Z" },
+  { slug: "daily-comic", name: "하루만화", tagline: "오늘 있었던 일을 웹툰으로 만들어드려요", category: "webtoon_creative", feedback_count: 9, view_count: 167, hasCertificate: true, gradientFrom: "#C7704E", gradientTo: "#a05535", label: "웹툰 생성", created_at: "2026-04-16T15:00:00Z" },
+  { slug: "song-cover-ai", name: "커버링", tagline: "내 목소리로 AI 커버 음악 만들기", category: "webtoon_creative", feedback_count: 6, view_count: 134, hasCertificate: false, gradientFrom: "#4A7C74", gradientTo: "#2e5e56", label: "AI 음악", created_at: "2026-04-13T10:00:00Z" },
+  { slug: "novel-helper", name: "글쟁이", tagline: "장편 소설 작가를 위한 스토리 구조 도구", category: "webtoon_creative", feedback_count: 2, view_count: 55, hasCertificate: true, gradientFrom: "#2D5F3F", gradientTo: "#3d7a52", label: "소설 도구", created_at: "2026-04-10T09:00:00Z" },
+
+  // quirky (4)
+  { slug: "cat-judge", name: "고양이 심판", tagline: "고양이가 내 코드를 리뷰해줘요", category: "quirky", feedback_count: 31, view_count: 521, hasCertificate: true, gradientFrom: "#D4A574", gradientTo: "#b88751", label: "냥이봇", created_at: "2026-04-22T11:00:00Z" },
+  { slug: "excuse-generator", name: "핑계 생성기", tagline: "회의 빠질 핑계를 AI가 생성해줘요", category: "quirky", feedback_count: 19, view_count: 388, hasCertificate: false, gradientFrom: "#5B6B8A", gradientTo: "#3d4d6b", label: "핑계봇", created_at: "2026-04-19T16:00:00Z" },
+  { slug: "emo-detector", name: "찐심 탐지기", tagline: "카톡 메시지의 진심을 분석해드림", category: "quirky", feedback_count: 11, view_count: 244, hasCertificate: true, gradientFrom: "#8B5A8C", gradientTo: "#6b3d6d", label: "감정 분석", created_at: "2026-04-17T14:00:00Z" },
+  { slug: "salary-burn", name: "월급불태우기", tagline: "이번 달 월급을 얼마나 태웠는지 시각화", category: "quirky", feedback_count: 4, view_count: 122, hasCertificate: false, gradientFrom: "#C7704E", gradientTo: "#a05535", label: "가계부", created_at: "2026-04-11T10:00:00Z" },
+
+  // etc (4)
+  { slug: "review-moa", name: "리뷰 모음", tagline: "자영업자용 고객 리뷰 대시보드", category: "etc", feedback_count: 1, view_count: 45, hasCertificate: true, gradientFrom: "#5B6B8A", gradientTo: "#3d4d6b", label: "리뷰 수집", created_at: "2026-04-20T09:00:00Z" },
+  { slug: "coffee-run", name: "커피런", tagline: "팀 커피 주문을 카카오톡으로 간편하게", category: "etc", feedback_count: 13, view_count: 198, hasCertificate: true, gradientFrom: "#4A7C74", gradientTo: "#2e5e56", label: "커피 주문", created_at: "2026-04-16T11:00:00Z" },
+  { slug: "onboarding-kit", name: "온보딩킷", tagline: "스타트업 신입 온보딩 문서 자동화", category: "etc", feedback_count: 5, view_count: 89, hasCertificate: false, gradientFrom: "#2D5F3F", gradientTo: "#3d7a52", label: "온보딩", created_at: "2026-04-13T15:00:00Z" },
+  { slug: "lunch-vote", name: "점심 투표", tagline: "오늘 뭐 먹을지 팀 투표 + 주문 연결", category: "etc", feedback_count: 7, view_count: 133, hasCertificate: true, gradientFrom: "#D4A574", gradientTo: "#b88751", label: "점심봇", created_at: "2026-04-09T08:00:00Z" },
+];
+
+const PAGE_SIZE = 12;
+
+type FetchParams = {
+  cat: string;
+  sort: string;
+  page: number;
+};
+
+function sortProducts(arr: FeedProduct[], sort: string): FeedProduct[] {
+  return [...arr].sort((a, b) => {
+    if (sort === "feedback") return b.feedback_count - a.feedback_count;
+    if (sort === "views") return b.view_count - a.view_count;
+    // latest
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+}
+
+export function getMockFeedPage({ cat, sort, page }: FetchParams) {
+  const filtered =
+    cat === "all" || !cat
+      ? FEED_MOCK
+      : FEED_MOCK.filter((p) => p.category === cat);
+
+  const sorted = sortProducts(filtered, sort);
+  const total = sorted.length;
+  const start = (page - 1) * PAGE_SIZE;
+  const items = sorted.slice(start, start + PAGE_SIZE);
+  const hasMore = start + PAGE_SIZE < total;
+  const lastCursor = items.at(-1)?.created_at ?? null;
+
+  return { items, total, hasMore, lastCursor };
+}
+
+// cursor 기반 더보기 (클라이언트 load more용)
+export function getMockFeedAfter({
+  cat,
+  sort,
+  after,
+  limit = PAGE_SIZE,
+}: {
+  cat: string;
+  sort: string;
+  after: string;
+  limit?: number;
+}) {
+  const filtered =
+    cat === "all" || !cat
+      ? FEED_MOCK
+      : FEED_MOCK.filter((p) => p.category === cat);
+  const sorted = sortProducts(filtered, sort);
+  const idx = sorted.findIndex((p) => p.created_at === after);
+  const start = idx === -1 ? 0 : idx + 1;
+  const items = sorted.slice(start, start + limit);
+  const hasMore = start + limit < sorted.length;
+  const lastCursor = items.at(-1)?.created_at ?? null;
+  return { items, hasMore, lastCursor };
+}
+
+export { PAGE_SIZE };

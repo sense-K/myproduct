@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마이프로덕트 — 등록 플로우 (최종)</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #FBF6ED;
+    --ink: #1a1a1a;
+    --ink-60: #5a5a5a;
+    --ink-40: #858585;
+    --ink-20: #d0ccc3;
+    --ink-10: #e8e4db;
+    --accent: #F04D2E;
+    --accent-soft: #FFE8E0;
+    --sage: #7A8871;
+    --sage-soft: #E8EDE4;
+    --paper: #FFFFFF;
+    --radius-lg: 28px;
+    --radius-md: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.5;
+    padding: 40px 20px 80px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header .tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    background: var(--accent);
+    color: var(--paper);
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--ink-60);
+  }
+
+  /* Section header for step groups */
+  .group-header {
+    margin: 48px 0 20px;
+    padding: 16px 18px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink-10);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .group-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .group-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .group-desc {
+    font-size: 12px;
+    color: var(--ink-60);
+  }
+
+  .annotation {
+    margin: 36px 0 14px;
+    padding: 0 8px;
+  }
+
+  .annotation .step-num {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-right: 8px;
+  }
+
+  .annotation h2 {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+
+  .annotation .timing {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+
+  .annotation p {
+    font-size: 12px;
+    color: var(--ink-60);
+    margin-top: 6px;
+    line-height: 1.55;
+  }
+
+  /* Phone frame */
+  .phone {
+    background: var(--ink);
+    border-radius: var(--radius-lg);
+    padding: 10px;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.08);
+    margin: 0 auto;
+    max-width: 360px;
+  }
+
+  .phone-screen {
+    background: var(--cream);
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 640px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .top-bar .status {
+    font-size: 10px;
+    color: var(--ink-60);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    padding: 8px 14px 12px;
+    border-bottom: 1px solid var(--ink-10);
+    gap: 10px;
+  }
+
+  .back-btn {
+    font-size: 18px;
+    color: var(--ink);
+    background: none;
+    border: none;
+    padding: 4px 6px;
+  }
+
+  .brand {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    flex: 1;
+    text-align: center;
+  }
+
+  .brand::before {
+    content: "●";
+    color: var(--accent);
+    margin-right: 5px;
+  }
+
+  .nav-right-placeholder {
+    width: 30px;
+  }
+
+  /* Progress bar */
+  .progress {
+    padding: 12px 22px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--ink-10);
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--ink-10);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--ink-60);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* Content padding */
+  .content {
+    padding: 24px 22px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .heading-xl {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+
+  .heading-lg {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    margin-bottom: 10px;
+  }
+
+  .sub {
+    font-size: 13px;
+    color: var(--ink-60);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 15px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    width: 100%;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+    font-family: inherit;
+  }
+
+  .btn-primary.accent {
+    background: var(--accent);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink-10);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-text {
+    background: transparent;
+    color: var(--ink-60);
+    border: none;
+    padding: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 8px;
+  }
+
+  /* Rule card (step 1) */
+  .rule-card {
+    background: var(--paper);
+    border: 1.5px solid var(--ink-10);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+
+  .rule-head {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+
+  .rule-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--paper);
+    text-align: center;
+    line-height: 22px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .rule-title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .rule-body {
+    font-size: 12px;
+    color: var(--ink-60);
+    line-height: 1.6;
+    padding-left: 32px;
+  }
+
+  /* Inputs */
+  .input-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-60);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .input-url {
+    width: 100%;
+    padding: 16px 18px;
+    font-size: 14px;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-md);
+    background: var(--paper);
+    font-family: inherit;
+    margin-bottom: 12px;
+  }
+
+  .input-url.with-focus {
+    border-color: var(--accent);
+    background: #FFFCFB;
+  }
+
+  .input-sm {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 13px;
+    border: 1.5px solid var(--ink-10);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    font-family: inherit;
+    margin-bottom: 12px;
+  }
+
+  .textarea-sm {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 13px;
+    border: 1.5px solid var(--ink-10);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    font-family: inherit;
+    margin-bottom: 12px;
+    min-height: 70px;
+    resize: none;
+  }
+
+  .examples {
+    font-size: 11px;
+    color: var(--ink-40);
+    margin-bottom: 24px;
+    line-height: 1.7;
+  }
+
+  .examples strong {
+    color: var(--ink-60);
+    font-weight: 600;
+  }
+
+  /* Loading */
+  .loading-block {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid var(--ink-10);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 24px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .loading-steps {
+    list-style: none;
+    text-align: left;
+    font-size: 12px;
+    color: var(--ink-60);
+  }
+
+  .loading-steps li {
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .loading-steps li .check {
+    color: var(--sage);
+    font-weight: 700;
+  }
+
+  .loading-steps li.active { color: var(--ink); font-weight: 600; }
+  .loading-steps li.active::before {
+    content: "●";
+    color: var(--accent);
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .loading-steps li.pending { color: var(--ink-40); }
+
+  /* Preview card */
+  .preview-card {
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 16px;
+    border: 1.5px solid var(--ink-10);
+  }
+
+  .preview-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #2D5F3F 0%, #3d7a52 100%);
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    position: relative;
+  }
+
+  .preview-thumb::after {
+    content: "AI 자동";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-weight: 600;
+  }
+
+  .preview-field {
+    margin-bottom: 10px;
+  }
+
+  .preview-field:last-child { margin-bottom: 0; }
+
+  .preview-field-label {
+    font-size: 10px;
+    color: var(--ink-40);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .preview-field-value {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--ink-10);
+  }
+
+  .preview-field-value.desc {
+    font-weight: 400;
+    color: var(--ink-60);
+    line-height: 1.4;
+  }
+
+  .category-chips {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 3px;
+  }
+
+  .chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: var(--paper);
+    border: 1px solid var(--ink-10);
+    color: var(--ink-60);
+    font-weight: 500;
+  }
+
+  .chip.active {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+
+  /* Certificate notice box */
+  .cert-notice {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 18px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .cert-notice-icon {
+    flex-shrink: 0;
+    font-size: 22px;
+    padding-top: 2px;
+  }
+
+  .cert-notice-body {
+    flex: 1;
+  }
+
+  .cert-notice-title {
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    color: var(--cream);
+  }
+
+  .cert-notice-text {
+    font-size: 11px;
+    color: #b5b0a5;
+    line-height: 1.6;
+  }
+
+  /* Feedback required notice (step 3) */
+  .block-notice {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 16px 18px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 18px;
+  }
+
+  .block-notice-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #93301a;
+    margin-bottom: 6px;
+  }
+
+  .block-notice-text {
+    font-size: 12px;
+    color: #93301a;
+    line-height: 1.65;
+  }
+
+  /* Feedback candidate list (step 3) */
+  .fb-candidate {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--ink-10);
+    margin-bottom: 8px;
+  }
+
+  .fb-cand-thumb {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-align: center;
+    padding: 3px;
+  }
+
+  .fb-cand-thumb.v1 { background: linear-gradient(135deg, #D4A574 0%, #b88751 100%); }
+  .fb-cand-thumb.v2 { background: linear-gradient(135deg, #5B6B8A 0%, #3d4d6b 100%); }
+  .fb-cand-thumb.v3 { background: linear-gradient(135deg, #8B5A8C 0%, #6b3d6d 100%); }
+
+  .fb-cand-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .fb-cand-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .fb-cand-desc {
+    font-size: 11px;
+    color: var(--ink-60);
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fb-cand-meta {
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .fb-cand-cta {
+    flex-shrink: 0;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 100px;
+    background: var(--ink);
+    color: var(--cream);
+    font-weight: 700;
+    border: none;
+  }
+
+  /* Progress counter (feedback giving) */
+  .counter-card {
+    background: var(--sage-soft);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .counter-body {
+    flex: 1;
+  }
+
+  .counter-label {
+    font-size: 11px;
+    color: #3a5237;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .counter-progress {
+    font-size: 18px;
+    font-weight: 800;
+    color: #2c4229;
+    letter-spacing: -0.02em;
+  }
+
+  .counter-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .counter-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(122, 136, 113, 0.3);
+  }
+
+  .counter-dot.done {
+    background: var(--sage);
+  }
+
+  /* Success block */
+  .success-block {
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  .success-emoji {
+    font-size: 44px;
+    margin-bottom: 14px;
+  }
+
+  .success-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .success-sub {
+    font-size: 13px;
+    color: var(--ink-60);
+    margin-bottom: 20px;
+    line-height: 1.55;
+  }
+
+  .cert-download-card {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  .cert-download-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .cert-download-title {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .cert-download-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 11px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .cert-download-row:first-of-type {
+    border-top: none;
+  }
+
+  .cert-download-key { color: #9a958a; }
+
+  .cert-download-val {
+    font-family: 'SF Mono', Consolas, monospace;
+    color: var(--cream);
+    font-weight: 600;
+  }
+
+  .cert-download-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 10px;
+    background: var(--accent);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .url-box {
+    background: var(--cream);
+    border: 1.5px solid var(--ink-10);
+    border-radius: var(--radius-sm);
+    padding: 11px 13px;
+    font-size: 11px;
+    font-family: 'SF Mono', Consolas, monospace;
+    color: var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .copy-btn {
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .share-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .share-btn {
+    padding: 11px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--ink-10);
+    background: var(--paper);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--ink-20);
+    border-radius: var(--radius-md);
+    padding: 20px 16px;
+    text-align: center;
+    margin-bottom: 12px;
+    color: var(--ink-60);
+    font-size: 12px;
+  }
+
+  .upload-zone .icon {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--ink-10);
+    margin: 50px 0 30px;
+    position: relative;
+  }
+
+  .divider::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--cream);
+    padding: 0 14px;
+    font-size: 11px;
+    color: var(--ink-60);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* Notes */
+  .note {
+    margin-top: 40px;
+    padding: 24px;
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    border: 1.5px dashed var(--ink-10);
+    font-size: 13px;
+    color: var(--ink-60);
+    line-height: 1.7;
+  }
+
+  .note strong {
+    color: var(--ink);
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .note ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .note li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .note li::before {
+    content: "·";
+    position: absolute;
+    left: 6px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <span class="tag">WIREFRAME C · SUBMIT FLOW</span>
+    <h1>등록 플로우</h1>
+    <p>첫 방문자 기준 전체 동선 · 피드백 먼저 규칙 + 증명서 시스템 포함</p>
+  </header>
+
+  <!-- =========================================== -->
+  <!-- GROUP 1: RULES GATE  -->
+  <!-- =========================================== -->
+
+  <div class="group-header">
+    <span class="group-tag">GROUP 1</span>
+    <div class="group-title">규칙 안내 게이트</div>
+    <div class="group-desc">첫 방문자가 "제품 올리기" 누른 직후. 허들은 있되 부드럽게.</div>
+  </div>
+
+  <!-- STEP 1 : Rule intro -->
+  <div class="annotation">
+    <span class="step-num">STEP 1</span>
+    <h2>"주고받는 곳" 소개</h2>
+    <span class="timing">30초</span>
+    <p>플랫폼의 핵심 규칙을 처음부터 투명하게 공개. "허들이 아니라 문화"로 느껴지게.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <button class="back-btn">←</button>
+        <div class="brand">마이프로덕트</div>
+        <div class="nav-right-placeholder"></div>
+      </div>
+
+      <div class="content">
+        <h1 class="heading-xl">여긴 주고받는 곳이에요.</h1>
+        <p class="sub">다른 메이커의 제품에 피드백 <b>2개</b>를 남기면, 내 제품 1개를 올릴 수 있는 등록권이 생겨요.</p>
+
+        <div class="rule-card">
+          <div class="rule-head">
+            <span class="rule-num">1</span>
+            <div class="rule-title">먼저 피드백 2개 남기기</div>
+          </div>
+          <div class="rule-body">다른 메이커의 제품을 10문항으로 진지하게 검토해요. 한 번에 5분 정도.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-head">
+            <span class="rule-num">2</span>
+            <div class="rule-title">내 제품 올리기 · 증명서 자동 발급</div>
+          </div>
+          <div class="rule-body">등록 시각·내용이 공개 레지스트리에 기록되고, 증명서 PDF를 받으실 수 있어요.</div>
+        </div>
+
+        <div class="rule-card">
+          <div class="rule-head">
+            <span class="rule-num">3</span>
+            <div class="rule-title">동료들의 피드백 받기</div>
+          </div>
+          <div class="rule-body">내 제품 페이지에 받은 피드백이 쌓여요. 내용은 나만 볼 수 있어요.</div>
+        </div>
+
+        <button class="btn-primary accent" style="margin-top:24px;">피드백 주러 가기</button>
+        <button class="btn-text">왜 이런 규칙인가요?</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================== -->
+  <!-- GROUP 2: FEEDBACK LOOP  -->
+  <!-- =========================================== -->
+
+  <div class="group-header">
+    <span class="group-tag">GROUP 2</span>
+    <div class="group-title">피드백 작성 단계</div>
+    <div class="group-desc">진행률과 등록권 카운트를 계속 보여줘서 동기 유지.</div>
+  </div>
+
+  <!-- STEP 2 : Pick feedback target -->
+  <div class="annotation">
+    <span class="step-num">STEP 2</span>
+    <h2>피드백할 제품 고르기</h2>
+    <span class="timing">30초</span>
+    <p>너무 많은 선택지는 마비를 부름. 딱 3개만 추천. "지금 피드백이 절실한 제품" 위주.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <button class="back-btn">←</button>
+        <div class="brand">마이프로덕트</div>
+        <div class="nav-right-placeholder"></div>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+        <div class="progress-label">등록권 0 / 2 · 피드백 0개 완료</div>
+      </div>
+
+      <div class="content">
+        <h1 class="heading-lg">어떤 제품부터 볼까요?</h1>
+        <p class="sub">아직 피드백이 적어 누군가의 의견을 기다리는 제품들이에요.</p>
+
+        <div class="fb-candidate">
+          <div class="fb-cand-thumb v1">자영업 챗봇</div>
+          <div class="fb-cand-body">
+            <div class="fb-cand-name">사장님 상담</div>
+            <div class="fb-cand-desc">자영업자 고민 AI 상담 서비스</div>
+            <div class="fb-cand-meta">피드백 1 · 3일 전</div>
+          </div>
+          <button class="fb-cand-cta">시작</button>
+        </div>
+
+        <div class="fb-candidate">
+          <div class="fb-cand-thumb v2">메모앱</div>
+          <div class="fb-cand-body">
+            <div class="fb-cand-name">틈새 메모</div>
+            <div class="fb-cand-desc">짧은 생각을 빠르게 기록하는 앱</div>
+            <div class="fb-cand-meta">피드백 0 · 어제 등록</div>
+          </div>
+          <button class="fb-cand-cta">시작</button>
+        </div>
+
+        <div class="fb-candidate">
+          <div class="fb-cand-thumb v3">취미 매칭</div>
+          <div class="fb-cand-body">
+            <div class="fb-cand-name">같이해요</div>
+            <div class="fb-cand-desc">동네 기반 취미 동료 매칭</div>
+            <div class="fb-cand-meta">피드백 2 · 1주일 전</div>
+          </div>
+          <button class="fb-cand-cta">시작</button>
+        </div>
+
+        <button class="btn-text" style="margin-top:12px;">전체 목록에서 고르기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 : Feedback writing -->
+  <div class="annotation">
+    <span class="step-num">STEP 3</span>
+    <h2>피드백 작성 (10문항)</h2>
+    <span class="timing">5분</span>
+    <p>한 번에 한 문항씩, 진행률 보여주며. 임시저장 자동.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <button class="back-btn">←</button>
+        <div class="brand">마이프로덕트</div>
+        <div class="nav-right-placeholder"></div>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+        <div class="progress-label">7 / 10 문항 · 등록권 0 / 2</div>
+      </div>
+
+      <div class="content">
+        <div style="font-size:11px; color:var(--accent); font-weight:700; letter-spacing:0.05em; margin-bottom:6px;">문항 7</div>
+        <h1 class="heading-lg">이 제품의 가장 큰 약점은 무엇이라고 생각하세요?</h1>
+        <p class="sub" style="margin-bottom:12px;">솔직하게, 하지만 예쁘게 말해주세요. 창업자가 감정이 상하지 않게, 그러나 핵심은 정확히. <b>최소 100자</b></p>
+
+        <textarea class="textarea-sm" style="min-height:140px;" placeholder="예: 첫 화면에서 '이 서비스가 뭘 해주는지'가 바로 와닿지 않아요. 타겟 사용자의 구체적 상황을 한 문장으로...">첫 화면에서 이 서비스가 뭘 해주는지 바로 와닿지 않아요. '프랜차이즈 점주'라는 타겟이 더 명확히 드러나면 좋겠어요. 매출 벤치마킹이라는 강점도 히어로 영역에 좀더 크게 보이는게 어떨까요?</textarea>
+
+        <div style="font-size:11px; color:var(--ink-40); text-align:right; margin-bottom:16px;">112자 / 최소 100자 ✓</div>
+
+        <div style="display:flex; gap:8px;">
+          <button class="btn-secondary" style="flex:1;">← 이전</button>
+          <button class="btn-primary" style="flex:2;">다음 문항 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 : Feedback done + counter -->
+  <div class="annotation">
+    <span class="step-num">STEP 4</span>
+    <h2>피드백 완료 · 등록권 +1</h2>
+    <span class="timing">3초</span>
+    <p>작은 성취의 축하. 다음 행동 유도: "한 번 더 할래? 아니면 등록권 1개 부족 상태로 기다릴래?"</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <div class="brand">마이프로덕트</div>
+      </div>
+
+      <div class="content">
+        <div class="counter-card">
+          <div class="counter-body">
+            <div class="counter-label">등록권 보유</div>
+            <div class="counter-progress">1 / 2</div>
+          </div>
+          <div class="counter-dots">
+            <div class="counter-dot done"></div>
+            <div class="counter-dot"></div>
+          </div>
+        </div>
+
+        <div class="success-block" style="padding:0;">
+          <div class="success-emoji">🌱</div>
+          <div class="success-title">좋은 피드백 고마워요</div>
+          <div class="success-sub">
+            사장님 상담 팀이 당신의 피드백을 확인하게 돼요.<br>
+            등록권이 <b>1개</b> 생겼어요. <b>1개 더</b> 하면 제품을 올릴 수 있어요.
+          </div>
+
+          <button class="btn-primary accent" style="margin-bottom:10px;">한 번 더 피드백 하기</button>
+          <button class="btn-secondary">나중에 하기 (등록 대기)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================== -->
+  <!-- GROUP 3: SUBMIT FLOW -->
+  <!-- =========================================== -->
+
+  <div class="group-header">
+    <span class="group-tag">GROUP 3</span>
+    <div class="group-title">제품 등록 본 플로우</div>
+    <div class="group-desc">등록권 2개 모이면 이 단계로. URL 하나로 AI 자동 채움.</div>
+  </div>
+
+  <!-- STEP 5 : URL input -->
+  <div class="annotation">
+    <span class="step-num">STEP 5</span>
+    <h2>URL 입력</h2>
+    <span class="timing">5초</span>
+    <p>진행률이 "등록권 2/2 ✓"로 차있음 → 도달한 느낌 강화.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <button class="back-btn">←</button>
+        <div class="brand">마이프로덕트</div>
+        <div class="nav-right-placeholder"></div>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:100%; background:var(--sage);"></div></div>
+        <div class="progress-label" style="color:var(--sage);">✓ 등록권 2 / 2 확보 · 이제 제품을 올릴 수 있어요</div>
+      </div>
+
+      <div class="content">
+        <h1 class="heading-xl">어떤 걸 만들었어요?</h1>
+        <p class="sub">URL 하나만 붙여넣으면 AI가 알아서 정리해드려요.</p>
+
+        <label class="input-label">제품이 설명된 페이지 주소</label>
+        <input type="text" class="input-url with-focus" value="https://undercov.kr" readonly>
+
+        <div class="examples">
+          <strong>이런 URL 모두 가능해요</strong><br>
+          · 랜딩페이지 · 앱스토어 · 깃허브 README<br>
+          · 디스퀴엇 / 프로덕트헌트 · 블로그 소개글
+        </div>
+
+        <button class="btn-primary accent">다음 →</button>
+        <button class="btn-text">URL이 없어요. 스크린샷으로 직접 입력할게요</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6 : Confirmation with cert notice -->
+  <div class="annotation">
+    <span class="step-num">STEP 6</span>
+    <h2>확인 · 수정 + 증명서 안내</h2>
+    <span class="timing">40초</span>
+    <p>AI 자동 채움 결과 + 증명서 시스템 투명하게 공개. 형이 확정한 문구 그대로.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <button class="back-btn">←</button>
+        <div class="brand">마이프로덕트</div>
+        <div class="nav-right-placeholder"></div>
+      </div>
+
+      <div class="content">
+        <h1 class="heading-lg">이렇게 보일 거예요.</h1>
+        <p class="sub" style="margin-bottom:14px;">틀린 곳 눌러서 바로 수정할 수 있어요.</p>
+
+        <div class="preview-card">
+          <div class="preview-thumb">undercov.kr</div>
+
+          <div class="preview-field">
+            <div class="preview-field-label">제품명</div>
+            <div class="preview-field-value">언더커버</div>
+          </div>
+
+          <div class="preview-field">
+            <div class="preview-field-label">한줄 소개</div>
+            <div class="preview-field-value desc">프랜차이즈 점주만을 위한 익명 커뮤니티와 매출 벤치마킹 서비스</div>
+          </div>
+
+          <div class="preview-field">
+            <div class="preview-field-label">카테고리</div>
+            <div class="category-chips">
+              <span class="chip active">SaaS</span>
+              <span class="chip">모바일앱</span>
+              <span class="chip">웹툰·창작</span>
+              <span class="chip">엉뚱함</span>
+              <span class="chip">기타</span>
+            </div>
+          </div>
+        </div>
+
+        <label class="input-label">만든 사람 한마디 (선택)</label>
+        <textarea class="textarea-sm" placeholder="만든 뒷이야기, 한 줄이면 충분해요">프차 점주 4년차, 혼자 매출 고민하다 잠 못 잤던 밤에 만들기 시작했어요.</textarea>
+
+        <!-- CERT NOTICE (형이 확정한 문구) -->
+        <div class="cert-notice">
+          <div class="cert-notice-icon">🛡️</div>
+          <div class="cert-notice-body">
+            <div class="cert-notice-title">등록 즉시 타임스탬프 증명서가 발급돼요</div>
+            <div class="cert-notice-text">등록 시각과 내용이 공개 기록·해시로 남아, '내가 먼저 올렸다'는 객관적 증거가 됩니다. 법적 효력은 제한적이지만 만약의 상황에 도움이 돼요.</div>
+          </div>
+        </div>
+
+        <label class="input-label">연락용 이메일</label>
+        <input type="email" class="input-sm" value="maker@example.com">
+
+        <label class="input-label">닉네임 (증명서·레지스트리에 표시)</label>
+        <input type="text" class="input-sm" value="익명의 프차점주" placeholder="익명이어도 괜찮아요">
+
+        <button class="btn-primary accent" style="margin-top:6px;">올리기 · 증명서 받기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7 : Success + certificate -->
+  <div class="annotation">
+    <span class="step-num">STEP 7</span>
+    <h2>완료 · 증명서 다운로드 · 공유</h2>
+    <span class="timing">중요!</span>
+    <p>이 순간이 창업자 만족도의 정점. 증명서 PDF + 공유 버튼이 핵심.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <div class="brand">마이프로덕트</div>
+      </div>
+
+      <div class="content">
+        <div class="success-block" style="padding:20px 0 10px;">
+          <div class="success-emoji">🎉</div>
+          <div class="success-title">올라갔어요!</div>
+          <div class="success-sub">'언더커버'가 레지스트리에 기록됐어요.</div>
+        </div>
+
+        <!-- Certificate download card -->
+        <div class="cert-download-card">
+          <div class="cert-download-label">타임스탬프 증명서</div>
+          <div class="cert-download-title">이 제품은 2026년 4월 23일 14:30:12에<br>마이프로덕트에 등록되었습니다.</div>
+
+          <div class="cert-download-row">
+            <span class="cert-download-key">등록번호</span>
+            <span class="cert-download-val">#A3F8D9</span>
+          </div>
+          <div class="cert-download-row">
+            <span class="cert-download-key">해시</span>
+            <span class="cert-download-val">a3f8d9c2b4e1...</span>
+          </div>
+          <div class="cert-download-row">
+            <span class="cert-download-key">등록자</span>
+            <span class="cert-download-val">익명의 프차점주</span>
+          </div>
+
+          <button class="cert-download-btn">📄 증명서 PDF 다운로드</button>
+        </div>
+
+        <label class="input-label">내 제품 페이지</label>
+        <div class="url-box">
+          <span>myproduct.kr/p/undercov</span>
+          <button class="copy-btn">복사</button>
+        </div>
+
+        <div class="share-row">
+          <button class="share-btn">𝕏 공유</button>
+          <button class="share-btn">💬 카톡</button>
+        </div>
+
+        <button class="btn-primary" style="margin-top:4px;">내 제품 페이지 보기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================== -->
+  <!-- ALTERNATE FLOW: NO URL -->
+  <!-- =========================================== -->
+
+  <div class="divider" data-label="대안 · URL 없을 때"></div>
+
+  <div class="annotation">
+    <span class="step-num">STEP 5b</span>
+    <h2>직접 입력 (URL 없을 때)</h2>
+    <span class="timing">2~3분</span>
+    <p>STEP 5에서 "URL 없어요" 누르면 여기로. 작성 끝나면 STEP 6(확인·수정)으로 합류.</p>
+  </div>
+
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="top-bar"><span>9:41</span><div class="status">●●●</div></div>
+      <div class="nav">
+        <button class="back-btn">←</button>
+        <div class="brand">마이프로덕트</div>
+        <div class="nav-right-placeholder"></div>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar"><div class="progress-fill" style="width:100%; background:var(--sage);"></div></div>
+        <div class="progress-label" style="color:var(--sage);">✓ 등록권 2 / 2 확보</div>
+      </div>
+
+      <div class="content">
+        <h1 class="heading-lg">직접 입력해주세요.</h1>
+        <p class="sub">URL이 없어도 괜찮아요. 스크린샷이랑 간단한 설명만 있으면 돼요.</p>
+
+        <label class="input-label">제품명</label>
+        <input type="text" class="input-sm" value="사과당 레시피 봇">
+
+        <label class="input-label">한줄 소개</label>
+        <textarea class="textarea-sm" placeholder="이 제품이 뭘 하는지 한 줄로">디저트 가게 사장이 만든 자동 레시피 추천 챗봇</textarea>
+
+        <label class="input-label">스크린샷 (1장 이상)</label>
+        <div class="upload-zone">
+          <div class="icon">📷</div>
+          탭해서 이미지 업로드
+        </div>
+
+        <label class="input-label">카테고리</label>
+        <div class="category-chips" style="margin-bottom:20px;">
+          <span class="chip">SaaS</span>
+          <span class="chip active">모바일앱</span>
+          <span class="chip">웹툰·창작</span>
+          <span class="chip">엉뚱함</span>
+          <span class="chip">기타</span>
+        </div>
+
+        <button class="btn-primary accent">다음 (미리보기 확인) →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="note">
+    <strong>등록 플로우 핵심 설계 포인트</strong>
+    <ul>
+      <li><b>진행률 바 통일</b>: 피드백 단계와 등록 단계 모두 "등록권 N/2" 카운터 일관 노출. 유저가 자기 위치 항상 알게</li>
+      <li><b>STEP 1 규칙 안내</b>: 허들이 아니라 문화로 느껴지게. 3개 카드로 전체 여정 먼저 보여줌</li>
+      <li><b>STEP 2 추천 3개</b>: 선택지 마비 방지. "피드백 절실한 제품" 위주로 큐레이션 (알고리즘: 피드백 개수 적은 순 + 등록 시각 최신 순)</li>
+      <li><b>STEP 3 최소 글자수 100자</b>: 8번 "약점" 문항 등 핵심 서술형에만 적용. 나머진 유연</li>
+      <li><b>STEP 4 즉시 축하</b>: 등록권 카운터 애니메이션 + "한 번 더" 유도. 대다수 여기서 중도 이탈 아니면 탄력 붙음</li>
+      <li><b>STEP 6 증명서 안내 박스</b>: 형 확정 문구 그대로 검정 카드로 강조. "법적 효력 제한적" 명시는 신뢰 구축</li>
+      <li><b>STEP 7 증명서 PDF + 공유</b>: 공유는 카톡·X. 이 순간이 바이럴 트리거. 증명서 자체도 "자랑 소재"가 됨</li>
+      <li><b>URL 없을 때 대안</b>: STEP 5에서 분기되어 STEP 6으로 합류. 스크린샷 업로드만 추가</li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+name = "myproduct"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare Pages 빌드 출력 경로 (adapter에 따라 조정)
+pages_build_output_dir = ".vercel/output/static"
+
+# Browser Rendering 바인딩 (PDF 생성용)
+# 로컬 테스트: npx wrangler pages dev .vercel/output/static
+# 배포 후 CF 대시보드 > Settings > Functions > Bindings 에서 활성화 필요
+[browser]
+binding = "BROWSER"
+
+# Supabase env vars는 CF Pages 대시보드 > Settings > Environment variables 에서 설정
+# NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+# ANTHROPIC_API_KEY, RESEND_API_KEY
+# NEXT_PUBLIC_GA_ID, NEXT_PUBLIC_CLARITY_ID
