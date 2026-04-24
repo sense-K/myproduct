@@ -133,7 +133,9 @@
       "Bash(git commit -m 'fix: add open-next.config.ts required for @opennextjs/cloudflare build *)",
       "Bash(git commit -m 'fix: use defineCloudflareConfig helper for open-next config *)",
       "Bash(git commit -m 'fix: use @opennextjs/cloudflare context API and fix Supabase query types *)",
-      "Bash(git commit -m 'fix: switch middleware to Edge runtime for Cloudflare compatibility *)"
+      "Bash(git commit -m 'fix: switch middleware to Edge runtime for Cloudflare compatibility *)",
+      "WebFetch(domain:opennext.js.org)",
+      "Bash(git commit -m 'fix: switch to Cloudflare Workers deployment \\(not Pages\\) *)"
     ]
   }
 }

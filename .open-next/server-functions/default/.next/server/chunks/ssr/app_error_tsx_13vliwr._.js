@@ -1,0 +1,3 @@
+module.exports=[78141,a=>{"use strict";var b=a.i(87924),c=a.i(72131);a.s(["default",0,function({error:a,reset:d}){return(0,c.useEffect)(()=>{console.error(a)},[a]),(0,b.jsxs)("div",{className:"flex min-h-[60vh] flex-col items-center justify-center px-4 text-center",children:[(0,b.jsx)("p",{className:"text-5xl",children:"🛠️"}),(0,b.jsx)("h1",{className:"mt-4 text-2xl font-extrabold",children:"잠시 문제가 생겼어요"}),(0,b.jsxs)("p",{className:"mt-2 max-w-sm text-sm text-ink-60",children:["이런 일이 자주 있진 않아요.",(0,b.jsx)("br",{}),"잠시 후 다시 시도해주세요."]}),(0,b.jsx)("button",{onClick:d,className:"mt-6 rounded-[8px] bg-ink px-4 py-2 text-sm font-semibold text-cream transition-opacity hover:opacity-90",children:"다시 시도"})]})}])}];
+
+//# sourceMappingURL=app_error_tsx_13vliwr._.js.map
