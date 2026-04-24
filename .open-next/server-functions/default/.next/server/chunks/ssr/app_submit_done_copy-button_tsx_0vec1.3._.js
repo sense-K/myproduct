@@ -1,3 +1,0 @@
-module.exports=[10062,a=>{"use strict";var b=a.i(87924),c=a.i(72131);a.s(["CopyButton",0,function({text:a}){let[d,e]=(0,c.useState)(!1);async function f(){await navigator.clipboard.writeText(a),e(!0),setTimeout(()=>e(!1),2e3)}return(0,b.jsx)("button",{type:"button",onClick:f,className:"flex-shrink-0 rounded-[6px] border border-ink-10 px-2.5 py-1 text-[11px] font-semibold text-ink-60 hover:border-ink hover:text-ink",children:d?"복사됨 ✓":"복사"})}])}];
-
-//# sourceMappingURL=app_submit_done_copy-button_tsx_0vec1.3._.js.map
