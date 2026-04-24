@@ -44,3 +44,11 @@ public/fonts/*.otf
 public/fonts/*.woff
 public/fonts/*.woff2
 .open-next/
+
+# Cloudflare / Wrangler 빌드 결과물
+.wrangler/
+dist/
+worker-configuration.d.ts
+
+# 로컬 개발 변수 (절대 커밋 금지)
+.dev.vars
