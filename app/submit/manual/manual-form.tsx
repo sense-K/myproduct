@@ -9,6 +9,7 @@ export function ManualForm() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
   const [category, setCategory] = useState<Category>("saas");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -24,11 +25,15 @@ export function ManualForm() {
 
   function handleNext() {
     if (!validate()) return;
+    const trimmed = externalUrl.trim();
+    const normalizedUrl = trimmed
+      ? trimmed.includes("://") ? trimmed : `https://${trimmed}`
+      : null;
     sessionStorage.setItem(
       "mp_submit",
       JSON.stringify({
         submission_type: "manual",
-        external_url: null,
+        external_url: normalizedUrl,
         name: name.trim(),
         tagline: tagline.trim(),
         category,
@@ -75,6 +80,18 @@ export function ManualForm() {
       />
       {errors.tagline && <p className="mb-1 text-[11px] text-accent">{errors.tagline}</p>}
       <p className="mb-4 text-right text-[11px] text-ink-40">{tagline.length}/150</p>
+
+      {/* 외부 링크 */}
+      <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
+        외부 링크 <span className="text-ink-40">(선택)</span>
+      </label>
+      <input
+        type="url"
+        value={externalUrl}
+        onChange={(e) => setExternalUrl(e.target.value)}
+        placeholder="https://example.com"
+        className="mb-4 h-11 w-full rounded-[8px] border border-ink-10 bg-paper px-3 text-[13px] outline-none focus:border-ink"
+      />
 
       {/* 카테고리 */}
       <label className="mb-2 block text-[12px] font-semibold text-ink-60">
