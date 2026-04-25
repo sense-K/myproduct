@@ -128,6 +128,38 @@ export function buildFAQSchema(
   };
 }
 
+// ─── 9.4.6 CreativeWork (/registry/[regnum]) ─────────────────────────────────
+
+export function buildCreativeWorkSchema({
+  productName,
+  tagline,
+  makerNickname,
+  issuedAt,
+  contentHash,
+  regnum,
+}: {
+  productName: string;
+  tagline: string;
+  makerNickname: string;
+  issuedAt: string;
+  contentHash: string;
+  regnum: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: productName,
+    description: tagline,
+    creator: {
+      "@type": "Person",
+      name: makerNickname,
+    },
+    dateCreated: issuedAt,
+    identifier: contentHash,
+    url: `${SITE_URL}/registry/${regnum}`,
+  };
+}
+
 // ─── 9.4.5 Article (/about) ──────────────────────────────────────────────────
 
 export function buildArticleSchema({

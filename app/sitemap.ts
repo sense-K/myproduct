@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo/config";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // PRD 9.5 — 동적 sitemap.
 // Phase 1은 단일 sitemap.xml로 운영. 제품 수 10k+ 시 sitemap-index 분할 방식으로 전환.
@@ -15,10 +15,10 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    const supabase = await createClient();
+    const admin = createAdminClient();
 
     // 공개 제품
-    const { data: products } = await supabase
+    const { data: products } = await admin
       .from("products")
       .select("slug, updated_at")
       .eq("status", "public")
@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // 공개 레지스트리 (증명서)
-    const { data: registry } = await supabase
+    const { data: registry } = await admin
       .from("registry_entries")
       .select("registration_number, created_at")
       .eq("is_visible", true)

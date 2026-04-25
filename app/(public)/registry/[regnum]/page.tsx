@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/config";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { buildBreadcrumbSchema } from "@/lib/seo/json-ld";
+import { buildBreadcrumbSchema, buildCreativeWorkSchema } from "@/lib/seo/json-ld";
 import { HashVerify } from "./HashVerify";
 import { CAREER_TAGS, CATEGORIES } from "@/lib/constants/user";
 
@@ -83,9 +83,19 @@ export default async function RegistryDetailPage({ params }: PageProps) {
     { name: `#${regnum}`, url: `${SITE_URL}/registry/${regnum}` },
   ]);
 
+  const creativeWork = buildCreativeWorkSchema({
+    productName: cert.product_name_snapshot,
+    tagline: cert.tagline_snapshot,
+    makerNickname: cert.nickname_snapshot,
+    issuedAt: cert.issued_at,
+    contentHash: cert.content_hash,
+    regnum,
+  });
+
   return (
     <>
       <JsonLd schema={breadcrumb} />
+      <JsonLd schema={creativeWork} />
 
       <div className="mx-auto max-w-lg px-4 py-8 sm:px-6">
         {/* 뒤로 */}

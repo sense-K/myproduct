@@ -7,7 +7,7 @@ export const SITE_NAME = "마이프로덕트";
 export const SITE_DESCRIPTION =
   "한국 인디 메이커를 위한 피드백 교환과 등록 증명 플랫폼. 동료의 진짜 피드백을 받고, 내 아이디어를 안전하게 공개 기록하세요.";
 
-export const OG_IMAGE_DEFAULT = `${SITE_URL}/og-default.png`;
+export const OG_IMAGE_DEFAULT = `${SITE_URL}/api/og/default`;
 
 export const TWITTER_HANDLE = "@myproduct_kr"; // 추후 운영 계정으로 교체
 
