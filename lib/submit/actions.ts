@@ -203,6 +203,17 @@ export type RegisterInput = {
   external_url: string | null;
   submission_type: "url" | "manual";
   thumbnail_url: string | null;
+  // v2 fields (all nullable — DB allows existing rows without them)
+  target_audience?: string;
+  problem_statement?: string;
+  solution_approach?: string;
+  differentiator?: string | null;
+  product_stage?: string | null;
+  pricing_model?: string | null;
+  feedback_categories?: string[];
+  maker_note?: string | null;
+  screenshot_urls?: string[];
+  demo_video_url?: string | null;
 };
 
 export type RegisterResult =
@@ -257,12 +268,23 @@ export async function registerProduct(input: RegisterInput): Promise<RegisterRes
       slug,
       name: input.name,
       tagline: input.tagline,
-      maker_quote: input.maker_quote || null,
+      maker_quote: input.maker_note || input.maker_quote || null,
       category: input.category,
       thumbnail_url: input.thumbnail_url,
       external_url: input.external_url,
       submission_type: input.submission_type,
       status: "public",
+      // v2 fields
+      target_audience: input.target_audience || null,
+      problem_statement: input.problem_statement || null,
+      solution_approach: input.solution_approach || null,
+      differentiator: input.differentiator || null,
+      product_stage: input.product_stage || null,
+      pricing_model: input.pricing_model || null,
+      feedback_categories: input.feedback_categories?.length ? input.feedback_categories : null,
+      maker_note: input.maker_note || null,
+      screenshot_urls: input.screenshot_urls?.length ? input.screenshot_urls : null,
+      demo_video_url: input.demo_video_url || null,
     })
     .select("id")
     .single();

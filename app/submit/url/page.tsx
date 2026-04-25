@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SubmitUrlPage() {
   // AI 자동 채움 일시 비활성화 — 결제 이슈 해결 후 아래 주석 해제하고 이 redirect 제거
-  redirect("/submit/manual");
+  redirect("/submit/step1");
 
   // eslint-disable-next-line no-unreachable
   const balance = await getCreditBalance();

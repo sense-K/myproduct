@@ -26,8 +26,8 @@ const STEPS = [
 export default async function SubmitIntroPage() {
   const balance = await getCreditBalance();
 
-  // 등록권 있으면 바로 수동 입력으로 (AI 자동 채움 일시 비활성화)
-  if (balance >= 1) redirect("/submit/manual");
+  // 등록권 있으면 5단계 폼으로 (AI 자동 채움 일시 비활성화)
+  if (balance >= 1) redirect("/submit/step1");
 
   return (
     <div className="mx-auto flex min-h-screen max-w-lg flex-col px-4 py-8">

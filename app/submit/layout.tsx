@@ -18,11 +18,13 @@ export default async function SubmitLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login?next=/submit/intro");
+  if (!user) redirect("/login?next=/submit/step1");
 
   return (
     <div className="min-h-screen bg-cream">
-      {children}
+      <div className="mx-auto max-w-xl px-4 py-8 sm:px-6">
+        {children}
+      </div>
     </div>
   );
 }
