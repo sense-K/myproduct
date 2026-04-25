@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   ...buildPageMetadata({
     title: "마이프로덕트 소개 · 메이커를 위한 피드백과 증명의 공간",
     description:
-      "마이프로덕트는 한국 인디 메이커를 위한 피드백 교환과 등록 증명 플랫폼입니다. 혼자 만든 제품에 동료의 진짜 피드백을 받고, 아이디어를 타임스탬프로 안전하게 공개하세요.",
+      "마이프로덕트는 사이드프로젝트의 아이디어 선점과 피드백 교환을 위한 공간입니다. 공개해도 안전하도록 등록 증명서로 만든 시점을 영구 기록합니다.",
     path: "/about",
   }),
 };
@@ -78,6 +78,24 @@ export default function AboutPage() {
             아이디어가 걱정되면, 증명서로 기록을 남기세요.
           </p>
         </header>
+
+        {/* ── 왜 마이프로덕트인가요 ── */}
+        <section className="mb-14">
+          <h2 className="mb-5 text-[22px] font-extrabold tracking-tight">왜 마이프로덕트인가요?</h2>
+          <p className="mb-4 text-[15px] leading-relaxed text-ink-60">
+            많은 메이커가 사이드프로젝트 공개를 망설입니다. 가장 큰 이유는 '베껴가면 어쩌지?'라는 두려움입니다.
+          </p>
+          <p className="mb-4 text-[15px] leading-relaxed text-ink-60">
+            마이프로덕트는 이 문제를 해결합니다. 작품을 공개하는 즉시 SHA-256 해시와 타임스탬프 기반의{" "}
+            <strong className="font-bold text-ink">등록 증명서</strong>가 발급되어, 만든 시점이 공개 레지스트리에
+            영구 기록됩니다. 이제 안심하고 공개할 수 있습니다.
+          </p>
+          <p className="text-[15px] leading-relaxed text-ink-60">
+            그리고 안전해진 작품에 대해 동료 메이커의 진짜 피드백을 받을 수 있습니다.{" "}
+            <strong className="font-bold text-ink">1인 개발자, 바이브코더, 인디 메이커</strong>가 만든
+            사이드프로젝트가 솔직하게 검증받는 공간입니다.
+          </p>
+        </section>
 
         {/* ── 문제 정의 ── */}
         <section className="mb-14">
@@ -207,6 +225,18 @@ export default function AboutPage() {
               </details>
             ))}
           </div>
+        </section>
+
+        {/* ── 등록 증명서 안내 ── */}
+        <section className="mb-14 rounded-[14px] border border-ink-10 bg-paper p-6">
+          <h2 className="mb-3 text-[15px] font-extrabold">등록 증명서에 대해</h2>
+          <p className="text-[13px] leading-relaxed text-ink-60">
+            마이프로덕트의 등록 증명서는 SHA-256 해시와 타임스탬프로 작품의 만든 시점을 공개 기록합니다.
+            아이디어 도용 시 정황 증거로 활용될 수 있는 비공식 증명입니다.
+          </p>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-60">
+            다만 정식 특허·상표·저작권 등록을 대체하지 않으며, 공식적인 보호가 필요한 경우 변리사 상담을 권합니다.
+          </p>
         </section>
 
         {/* ── 푸터 CTA ── */}

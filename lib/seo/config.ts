@@ -5,7 +5,7 @@ export const SITE_URL =
 export const SITE_NAME = "마이프로덕트";
 
 export const SITE_DESCRIPTION =
-  "한국 인디 메이커를 위한 피드백 교환과 등록 증명 플랫폼. 동료의 진짜 피드백을 받고, 내 아이디어를 안전하게 공개 기록하세요.";
+  "프로젝트를 공개하고 다른 사람들의 피드백을 받아보세요. 공개 즉시 발급되는 등록 증명서가 아이디어를 보호합니다. 1인 개발자, 바이브코더, 인디 메이커를 위한 사이드프로젝트 검증 공간.";
 
 export const OG_IMAGE_DEFAULT = `${SITE_URL}/api/og/default`;
 

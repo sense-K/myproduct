@@ -11,21 +11,21 @@ import { ValueSection } from "@/components/home/ValueSection";
 import { FooterCta } from "@/components/home/FooterCta";
 import type { HomeProduct, NeedFeedbackItem } from "@/types/feed";
 
-const META_TITLE = `${SITE_NAME} · 메이커의 제품에 진짜 피드백, 아이디어는 증명서로 안전하게`;
+const META_TITLE = `${SITE_NAME} · 사이드프로젝트를 공개하고 피드백을 받아보세요`;
 const META_DESC =
-  "만들었는데 아무도 안 써요? 한국 인디 메이커의 진짜 피드백을 받고, 타임스탬프 증명서로 '내가 먼저' 기록을 남기세요. 1인 개발자와 바이브코더를 위한 공간.";
+  "프로젝트를 공개하고 다른 사람들의 피드백을 받아보세요. 공개 즉시 발급되는 등록 증명서가 아이디어를 보호합니다. SHA-256 해시와 타임스탬프로 사이드프로젝트의 만든 시점을 영구 기록하는 인디 메이커 공간.";
 
 export const metadata: Metadata = {
   title: { absolute: META_TITLE },
   description: META_DESC,
   keywords: [
-    "한국 인디 메이커",
-    "사이드프로젝트 피드백",
-    "아이디어 등록 증명",
+    "사이드프로젝트",
+    "1인 개발자",
     "바이브코딩",
-    "1인 개발자 피드백",
-    "스타트업 피드백",
-    "MVP 피드백",
+    "인디 메이커",
+    "사이드프로젝트 피드백",
+    "아이디어 보호",
+    "등록 증명서",
     "마이프로덕트",
   ],
   alternates: { canonical: SITE_URL },

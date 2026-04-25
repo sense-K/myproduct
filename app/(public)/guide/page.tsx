@@ -179,6 +179,18 @@ export default function GuidePage() {
           </p>
         </section>
 
+        {/* ── 등록 증명서 안내 ── */}
+        <section className="mb-12 rounded-[14px] border border-ink-10 bg-paper p-6">
+          <h2 className="mb-3 text-[15px] font-extrabold">등록 증명서에 대해</h2>
+          <p className="text-[13px] leading-relaxed text-ink-60">
+            마이프로덕트의 등록 증명서는 SHA-256 해시와 타임스탬프로 작품의 만든 시점을 공개 기록합니다.
+            아이디어 도용 시 정황 증거로 활용될 수 있는 비공식 증명입니다.
+          </p>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-60">
+            다만 정식 특허·상표·저작권 등록을 대체하지 않으며, 공식적인 보호가 필요한 경우 변리사 상담을 권합니다.
+          </p>
+        </section>
+
         {/* ── 푸터 CTA ── */}
         <div className="text-center">
           <Link
