@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };

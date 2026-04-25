@@ -21,8 +21,7 @@ import { CertCard } from "@/components/product/CertCard";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 import { StickyCta } from "@/components/product/StickyCta";
 
-// PRD 9.7.4 — ISR 1시간. 제품 수정 시 revalidateTag('product-{slug}')로 즉시 갱신.
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -69,56 +68,36 @@ async function fetchProduct(slug: string) {
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  let slug = "(unknown)";
-  try {
-    slug = (await params).slug;
-    const product = await fetchProduct(slug);
-    if (!product) return { title: "제품을 찾을 수 없어요" };
+  const { slug } = await params;
+  const product = await fetchProduct(slug);
+  if (!product) return { title: "제품을 찾을 수 없어요" };
 
-    const p = product as any;
-    const name = p.name;
-    const tagline = (p.tagline as string).slice(0, 80);
-    const regDate = new Date(p.created_at).toLocaleDateString("ko-KR");
-    const fbCount = p.feedback_count ?? 0;
+  const p = product as any;
+  const name = p.name;
+  const tagline = (p.tagline as string).slice(0, 80);
+  const regDate = new Date(p.created_at).toLocaleDateString("ko-KR");
+  const fbCount = p.feedback_count ?? 0;
 
-    const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ""}/api/og/product?slug=${slug}`;
+  const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ""}/api/og/product?slug=${slug}`;
 
-    return {
-      ...buildProductMetadata({
-        name,
-        tagline,
-        slug,
-        thumbnailUrl: p.thumbnail_url ?? ogImageUrl,
-        category: p.category,
-        makerNickname: p.users?.nickname ?? "메이커",
-      }),
-      description: `${tagline} | ${regDate} 등록 · 메이커 ${fbCount}명의 피드백`,
-      openGraph: {
-        images: [{ url: ogImageUrl, width: 1200, height: 630, alt: name }],
-      },
-      twitter: {
-        card: "summary_large_image",
-        images: [ogImageUrl],
-      },
-    };
-  } catch (e: any) {
-    console.error('[DEBUG-p-slug]', JSON.stringify({
-      where: 'generateMetadata',
+  return {
+    ...buildProductMetadata({
+      name,
+      tagline,
       slug,
-      errorName: e?.name,
-      errorMessage: e?.message,
-      errorStack: e?.stack,
-      errorCause: e?.cause ? String(e.cause) : null,
-      env: {
-        hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-        hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        hasSiteUrl: !!process.env.NEXT_PUBLIC_SITE_URL,
-        siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? 'MISSING',
-      },
-    }));
-    throw e;
-  }
+      thumbnailUrl: p.thumbnail_url ?? ogImageUrl,
+      category: p.category,
+      makerNickname: p.users?.nickname ?? "메이커",
+    }),
+    description: `${tagline} | ${regDate} 등록 · 메이커 ${fbCount}명의 피드백`,
+    openGraph: {
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [ogImageUrl],
+    },
+  };
 }
 
 function getCategoryLabel(value: string) {
@@ -128,9 +107,7 @@ function getCategoryLabel(value: string) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ProductDetailPage({ params }: PageProps) {
-  let slug = "(unknown)";
-  try {
-  slug = (await params).slug;
+  const { slug } = await params;
   const [raw, { authUser }] = await Promise.all([fetchProduct(slug), getAuthState()]);
 
   if (!raw) notFound();
@@ -303,22 +280,4 @@ export default async function ProductDetailPage({ params }: PageProps) {
       />
     </>
   );
-  } catch (e: any) {
-    console.error('[DEBUG-p-slug]', JSON.stringify({
-      where: 'page',
-      slug,
-      errorName: e?.name,
-      errorMessage: e?.message,
-      errorStack: e?.stack,
-      errorCause: e?.cause ? String(e.cause) : null,
-      env: {
-        hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-        hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        hasSiteUrl: !!process.env.NEXT_PUBLIC_SITE_URL,
-        siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? 'MISSING',
-      },
-    }));
-    throw e;
-  }
 }

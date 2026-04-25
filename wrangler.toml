@@ -14,4 +14,8 @@ binding = "ASSETS"
 [browser]
 binding = "BROWSER"
 
-# 환경 변수는 CF 대시보드 > Workers > Settings > Variables 에서 설정
+# 공개 환경변수는 코드로 관리 (배포마다 자동 동기화)
+# 시크릿(SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY, ANTHROPIC_API_KEY)은 CF 대시보드에서 별도 관리
+[vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://lkejzmtgpktrlnkkhatb.supabase.co"
+NEXT_PUBLIC_SITE_URL = "https://myproduct.kr"

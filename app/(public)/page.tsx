@@ -15,6 +15,8 @@ const META_TITLE = `${SITE_NAME} · 사이드프로젝트를 공개하고 피드
 const META_DESC =
   "프로젝트를 공개하고 다른 사람들의 피드백을 받아보세요. 공개 즉시 발급되는 등록 증명서가 아이디어를 보호합니다. SHA-256 해시와 타임스탬프로 사이드프로젝트의 만든 시점을 영구 기록하는 인디 메이커 공간.";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: { absolute: META_TITLE },
   description: META_DESC,
