@@ -13,14 +13,85 @@ export type AiFillResult =
   | { ok: true; name: string; tagline: string; category: Category; thumbnailUrl: string | null }
   | { ok: false; error: string };
 
+// SSRF 방어: 공개 외부 URL만 허용
+function isValidPublicUrl(rawUrl: string): boolean {
+  let parsed: URL;
+  try { parsed = new URL(rawUrl); } catch { return false; }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+
+  const host = parsed.hostname.toLowerCase().replace(/\.+$/, "");
+
+  // 로컬 호스트 차단
+  if (host === "localhost" || host === "localhost.localdomain") return false;
+
+  // 루프백·링크로컬·메타데이터 IP 문자열 차단
+  const blocked = ["127.0.0.1", "0.0.0.0", "::1", "169.254.169.254"];
+  if (blocked.includes(host)) return false;
+
+  // IPv4 사설 대역 차단 (10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x)
+  const parts = host.split(".").map(Number);
+  if (parts.length === 4 && parts.every((n) => !isNaN(n) && n >= 0 && n <= 255)) {
+    const [a, b] = parts;
+    if (a === 10) return false;
+    if (a === 127) return false;
+    if (a === 169 && b === 254) return false;
+    if (a === 172 && b >= 16 && b <= 31) return false;
+    if (a === 192 && b === 168) return false;
+  }
+
+  return true;
+}
+
+// 큰따옴표·작은따옴표 모두 처리하는 메타 추출
+function extractMeta(html: string) {
+  const q = `["']`;
+  const val = (attr: string) =>
+    new RegExp(`${attr}\\s*=\\s*${q}([^"']+)${q}`, "i");
+
+  const ogAttr = (prop: string) =>
+    html.match(
+      new RegExp(
+        `property\\s*=\\s*${q}${prop}${q}[^>]*content\\s*=\\s*${q}([^"']+)${q}`,
+        "i",
+      ),
+    )?.[1] ??
+    html.match(
+      new RegExp(
+        `content\\s*=\\s*${q}([^"']+)${q}[^>]*property\\s*=\\s*${q}${prop}${q}`,
+        "i",
+      ),
+    )?.[1];
+
+  const title =
+    ogAttr("og:title") ??
+    html.match(/name\s*=\s*["']title["'][^>]*content\s*=\s*["']([^"']+)["']/i)?.[1] ??
+    html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.trim() ??
+    "";
+
+  const desc =
+    ogAttr("og:description") ??
+    html.match(/name\s*=\s*["']description["'][^>]*content\s*=\s*["']([^"']+)["']/i)?.[1] ??
+    html.match(/content\s*=\s*["']([^"']+)["'][^>]*name\s*=\s*["']description["']/i)?.[1] ??
+    "";
+
+  const image = ogAttr("og:image") ?? null;
+
+  return { title, desc, image };
+}
+
 export async function aiFillFromUrl(url: string): Promise<AiFillResult> {
-  // URL 정규화
   const normalized = url.startsWith("http") ? url : `https://${url}`;
 
+  // SSRF 차단
+  if (!isValidPublicUrl(normalized)) {
+    return { ok: false, error: "허용되지 않는 URL이에요" };
+  }
+
   try {
-    // 1. URL에서 HTML 메타 추출
+    // 1. URL에서 HTML 메타 추출 (타임아웃 5초)
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timer = setTimeout(() => controller.abort(), 5000);
 
     let html = "";
     try {
@@ -31,31 +102,24 @@ export async function aiFillFromUrl(url: string): Promise<AiFillResult> {
             "Mozilla/5.0 (compatible; MyProduct-Bot/1.0; +https://myproduct.kr)",
         },
       });
-      html = await res.text();
+      if (res.ok) html = await res.text();
     } catch {
-      // fetch 실패해도 AI 호출은 시도 (URL 자체를 단서로)
+      // fetch 실패해도 AI 호출 시도 (URL 자체를 단서로)
     } finally {
-      clearTimeout(timeout);
+      clearTimeout(timer);
     }
 
-    // OG 태그 추출
-    const ogTitle =
-      html.match(/property="og:title"[^>]*content="([^"]+)"/i)?.[1] ??
-      html.match(/content="([^"]+)"[^>]*property="og:title"/i)?.[1] ??
-      html.match(/<title>([^<]+)<\/title>/i)?.[1] ??
-      "";
-    const ogDesc =
-      html.match(/property="og:description"[^>]*content="([^"]+)"/i)?.[1] ??
-      html.match(/name="description"[^>]*content="([^"]+)"/i)?.[1] ??
-      "";
-    const ogImage =
-      html.match(/property="og:image"[^>]*content="([^"]+)"/i)?.[1] ?? null;
+    const { title: ogTitle, desc: ogDesc, image: ogImage } = extractMeta(html);
 
     // 2. Claude API 호출
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
+    if (!apiKey) {
+      console.error("[aiFillFromUrl] ANTHROPIC_API_KEY is not set");
+      throw new Error("ANTHROPIC_API_KEY not set");
+    }
 
     const anthropic = new Anthropic({ apiKey });
+
     const prompt = [
       `다음 제품 웹사이트 정보를 바탕으로 JSON만 반환하세요 (다른 텍스트 없음):`,
       ``,
@@ -84,7 +148,10 @@ export async function aiFillFromUrl(url: string): Promise<AiFillResult> {
 
     // JSON 파싱
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("AI 응답을 파싱할 수 없어요");
+    if (!jsonMatch) {
+      console.error("[aiFillFromUrl] AI response not parseable:", text.slice(0, 200));
+      throw new Error("AI 응답을 파싱할 수 없어요");
+    }
 
     const parsed = JSON.parse(jsonMatch[0]) as {
       name?: string;
@@ -107,10 +174,9 @@ export async function aiFillFromUrl(url: string): Promise<AiFillResult> {
       thumbnailUrl: ogImage,
     };
   } catch (err) {
-    return {
-      ok: false,
-      error: err instanceof Error ? err.message : "AI 채움 실패",
-    };
+    const msg = err instanceof Error ? err.message : "AI 채움 실패";
+    console.error("[aiFillFromUrl] error:", msg);
+    return { ok: false, error: msg };
   }
 }
 

@@ -59,6 +59,7 @@ export function UrlForm() {
             category: "etc",
             thumbnail_url: null,
             ai_failed: true,
+            ai_error: result.error,
           }),
         );
       } else {

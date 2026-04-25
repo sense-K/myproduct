@@ -14,6 +14,7 @@ type Draft = {
   category: Category;
   thumbnail_url: string | null;
   ai_failed?: boolean;
+  ai_error?: string;
 };
 
 export function ConfirmForm() {
@@ -78,6 +79,9 @@ export function ConfirmForm() {
       {draft.ai_failed && (
         <div className="rounded-[8px] bg-accent-soft px-3 py-2 text-[12px] text-accent">
           AI 채움에 실패했어요. 직접 수정해주세요.
+          {draft.ai_error && (
+            <span className="ml-1 opacity-60">({draft.ai_error})</span>
+          )}
         </div>
       )}
 
