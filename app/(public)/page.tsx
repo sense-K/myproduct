@@ -3,15 +3,14 @@ import { getAuthState } from "@/lib/auth/server";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildOrganizationSchema } from "@/lib/seo/json-ld";
 import { SITE_URL, SITE_NAME, OG_IMAGE_DEFAULT } from "@/lib/seo/config";
-import { MOCK_RECENT, MOCK_TOP_FEEDBACK, MOCK_NEED_FEEDBACK } from "@/lib/mock/home";
 import { HeroSection } from "@/components/home/HeroSection";
 import { CategorySection } from "@/components/home/CategorySection";
 import { HScrollSection } from "@/components/home/HScrollSection";
 import { NeedFeedbackSection } from "@/components/home/NeedFeedbackSection";
 import { ValueSection } from "@/components/home/ValueSection";
 import { FooterCta } from "@/components/home/FooterCta";
+import type { HomeProduct, NeedFeedbackItem } from "@/types/feed";
 
-// PRD 7.1 SEO
 const META_TITLE = `${SITE_NAME} · 메이커의 제품에 진짜 피드백, 아이디어는 증명서로 안전하게`;
 const META_DESC =
   "만들었는데 아무도 안 써요? 한국 인디 메이커의 진짜 피드백을 받고, 타임스탬프 증명서로 '내가 먼저' 기록을 남기세요. 1인 개발자와 바이브코더를 위한 공간.";
@@ -47,30 +46,98 @@ export const metadata: Metadata = {
   },
 };
 
+async function fetchHomeData(): Promise<{
+  recent: HomeProduct[];
+  topFeedback: HomeProduct[];
+  needFeedback: NeedFeedbackItem[];
+}> {
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+
+    const [recentRes, topRes, needRes] = await Promise.all([
+      supabase
+        .from("products")
+        .select(
+          "slug, name, tagline, category, feedback_count, certificates(registration_number)",
+        )
+        .eq("status", "public")
+        .order("created_at", { ascending: false })
+        .limit(6),
+      supabase
+        .from("products")
+        .select(
+          "slug, name, tagline, category, feedback_count, certificates(registration_number)",
+        )
+        .eq("status", "public")
+        .order("feedback_count", { ascending: false })
+        .limit(4),
+      supabase
+        .from("products")
+        .select("slug, name, tagline, feedback_count, created_at")
+        .eq("status", "public")
+        .lte("feedback_count", 3)
+        .order("created_at", { ascending: false })
+        .limit(3),
+    ]);
+
+    const toHomeProduct = (p: any): HomeProduct => ({
+      slug: p.slug,
+      name: p.name,
+      tagline: p.tagline,
+      category: p.category,
+      feedbackCount: p.feedback_count,
+      hasCertificate: (p.certificates?.length ?? 0) > 0,
+      gradientFrom: "#2D5F3F",
+      gradientTo: "#3d7a52",
+      label: p.name.slice(0, 6),
+    });
+
+    const msPerDay = 86_400_000;
+    const toNeedFeedback = (p: any): NeedFeedbackItem => ({
+      slug: p.slug,
+      name: p.name,
+      tagline: p.tagline,
+      feedbackCount: p.feedback_count,
+      daysAgo: Math.floor((Date.now() - new Date(p.created_at).getTime()) / msPerDay),
+      gradientFrom: "#D4A574",
+      gradientTo: "#b88751",
+      label: p.name.slice(0, 6),
+    });
+
+    return {
+      recent: (recentRes.data ?? []).map(toHomeProduct),
+      topFeedback: (topRes.data ?? []).map(toHomeProduct),
+      needFeedback: (needRes.data ?? []).map(toNeedFeedback),
+    };
+  } catch {
+    return { recent: [], topFeedback: [], needFeedback: [] };
+  }
+}
+
 export default async function HomePage() {
-  const { authUser } = await getAuthState();
+  const [{ authUser }, { recent, topFeedback, needFeedback }] = await Promise.all([
+    getAuthState(),
+    fetchHomeData(),
+  ]);
   const isLoggedIn = !!authUser;
 
   return (
     <>
       <JsonLd schema={buildOrganizationSchema()} />
 
-      {/* 1. 히어로 */}
       <HeroSection isLoggedIn={isLoggedIn} />
 
-      {/* 2. 최근 올라온 제품 (카테고리 탭 + 그리드) */}
-      <CategorySection products={MOCK_RECENT} />
+      {/* 최근 올라온 제품 — 비어있어도 섹션 표시 (빈 상태 포함) */}
+      <CategorySection products={recent} />
 
-      {/* 3. 이번 주 피드백 많이 받은 (가로 스크롤) */}
-      <HScrollSection products={MOCK_TOP_FEEDBACK} />
+      {/* 피드백 많이 받은 — 데이터 있을 때만 표시 */}
+      {topFeedback.length > 0 && <HScrollSection products={topFeedback} />}
 
-      {/* 4. 피드백 기다리는 제품 (대시드 보더) */}
-      <NeedFeedbackSection items={MOCK_NEED_FEEDBACK} />
+      {/* 피드백 기다리는 — 데이터 있을 때만 표시 */}
+      {needFeedback.length > 0 && <NeedFeedbackSection items={needFeedback} />}
 
-      {/* 5. 검정 배경 가치 섹션 */}
       <ValueSection />
-
-      {/* 6. 푸터 CTA */}
       <FooterCta isLoggedIn={isLoggedIn} />
     </>
   );

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { ProductCard } from "./ProductCard";
-import type { MockProduct } from "@/lib/mock/home";
+import type { HomeProduct } from "@/types/feed";
 
-type Props = { products: MockProduct[] };
+type Props = { products: HomeProduct[] };
 
 export function HScrollSection({ products }: Props) {
+  if (products.length === 0) return null;
+
   return (
     <section className="bg-cream px-4 pb-4 pt-7 sm:px-6">
       <div className="flex items-baseline justify-between">

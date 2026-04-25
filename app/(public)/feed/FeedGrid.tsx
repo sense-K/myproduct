@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { loadMoreFeed } from "@/lib/actions/feed";
-import type { FeedProduct } from "@/lib/mock/feed";
+import type { FeedProduct } from "@/types/feed";
 
 // ─── 카드 ─────────────────────────────────────────────────────────────────────
 
@@ -50,6 +50,38 @@ function FeedCard({ p }: { p: FeedProduct }) {
   );
 }
 
+// ─── 빈 상태 ──────────────────────────────────────────────────────────────────
+
+function EmptyState() {
+  return (
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+      <p className="text-4xl">🌱</p>
+      <div className="space-y-2">
+        <p className="text-[15px] font-bold text-ink">아직 등록된 제품이 없어요</p>
+        <p className="text-[12px] leading-relaxed text-ink-60">
+          첫 메이커가 되어보세요.
+          <br />
+          피드백 1개 남기면 등록권 1개를 받을 수 있어요.
+        </p>
+      </div>
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+        <Link
+          href="/feedback/pick"
+          className="rounded-[8px] border border-ink px-5 py-2.5 text-[13px] font-semibold text-ink transition-opacity hover:opacity-70"
+        >
+          피드백 주러 가기
+        </Link>
+        <Link
+          href="/submit/intro"
+          className="rounded-[8px] bg-accent px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          제품 등록하기
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 // ─── 그리드 + 무한 스크롤 ────────────────────────────────────────────────────
 
 type Props = {
@@ -67,7 +99,6 @@ export function FeedGrid({ initialItems, initialHasMore, initialCursor, cat, sor
   const [isPending, startTransition] = useTransition();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // props가 바뀔 때(카테고리/정렬 변경) 상태 리셋
   useEffect(() => {
     setItems(initialItems);
     setHasMore(initialHasMore);
@@ -84,7 +115,6 @@ export function FeedGrid({ initialItems, initialHasMore, initialCursor, cat, sor
     });
   }
 
-  // IntersectionObserver — sentinel이 뷰포트에 들어오면 자동 로드
   useEffect(() => {
     if (!sentinelRef.current || !hasMore) return;
     const observer = new IntersectionObserver(
@@ -97,21 +127,7 @@ export function FeedGrid({ initialItems, initialHasMore, initialCursor, cat, sor
     return () => observer.disconnect();
   }, [hasMore, cursor, isPending]);
 
-  if (items.length === 0) {
-    return (
-      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 px-4 text-center">
-        <p className="text-3xl">🌱</p>
-        <p className="text-sm font-semibold text-ink">아직 등록된 제품이 없어요</p>
-        <p className="text-xs text-ink-60">첫 번째 제품을 등록해보세요!</p>
-        <Link
-          href="/submit/intro"
-          className="mt-2 rounded-[8px] bg-ink px-4 py-2 text-sm font-semibold text-cream transition-opacity hover:opacity-90"
-        >
-          제품 올리기
-        </Link>
-      </div>
-    );
-  }
+  if (items.length === 0) return <EmptyState />;
 
   return (
     <div className="px-4 pb-8 pt-3 sm:px-6">
@@ -121,17 +137,14 @@ export function FeedGrid({ initialItems, initialHasMore, initialCursor, cat, sor
         ))}
       </div>
 
-      {/* 무한 스크롤 sentinel */}
       {hasMore && <div ref={sentinelRef} className="h-12" aria-hidden="true" />}
 
-      {/* 로딩 인디케이터 */}
       {isPending && (
         <div className="mt-4 flex justify-center">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-ink-10 border-t-ink" />
         </div>
       )}
 
-      {/* 수동 "더 보기" 폴백 (JS 비활성 or 스크롤 실패 시) */}
       {hasMore && !isPending && (
         <button
           onClick={loadMore}
@@ -142,9 +155,7 @@ export function FeedGrid({ initialItems, initialHasMore, initialCursor, cat, sor
       )}
 
       {!hasMore && items.length > 0 && (
-        <p className="mt-6 text-center text-xs text-ink-40">
-          모든 제품을 다 봤어요 🎉
-        </p>
+        <p className="mt-6 text-center text-xs text-ink-40">모든 제품을 다 봤어요 🎉</p>
       )}
     </div>
   );

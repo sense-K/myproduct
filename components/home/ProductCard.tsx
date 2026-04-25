@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { MockProduct } from "@/lib/mock/home";
+import type { HomeProduct } from "@/types/feed";
 
 type Props = {
-  product: MockProduct;
+  product: HomeProduct;
   size?: "sm" | "lg";
 };
 

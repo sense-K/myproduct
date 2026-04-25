@@ -4,7 +4,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { SITE_NAME } from "@/lib/seo/config";
 import { FeedbackForm } from "./feedback-form";
 import { getMockProduct } from "@/lib/mock/products";
-import { FEED_MOCK } from "@/lib/mock/feed";
 
 export const dynamic = "force-dynamic";
 
@@ -35,20 +34,6 @@ async function getProduct(slug: string) {
       thumbnail_url: mock.thumbnail_url,
       external_url: mock.external_url,
       feedback_count: mock.feedback_count,
-    };
-  }
-
-  // FEED_MOCK (피드 목록 데이터) — pick 페이지에서 추천된 제품들
-  const feedItem = FEED_MOCK.find((p) => p.slug === slug);
-  if (feedItem) {
-    return {
-      id: `mock-feed-${slug}`,
-      slug: feedItem.slug,
-      name: feedItem.name,
-      tagline: feedItem.tagline,
-      thumbnail_url: null,
-      external_url: null,
-      feedback_count: feedItem.feedback_count,
     };
   }
 

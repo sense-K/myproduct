@@ -1,9 +1,11 @@
 import Link from "next/link";
-import type { NeedFeedback } from "@/lib/mock/home";
+import type { NeedFeedbackItem } from "@/types/feed";
 
-type Props = { items: NeedFeedback[] };
+type Props = { items: NeedFeedbackItem[] };
 
 export function NeedFeedbackSection({ items }: Props) {
+  if (items.length === 0) return null;
+
   return (
     <section className="bg-paper px-4 pb-4 pt-7 sm:px-6">
       <div className="flex items-baseline justify-between">
@@ -22,7 +24,6 @@ export function NeedFeedbackSection({ items }: Props) {
             key={item.slug}
             className="flex items-center gap-3 rounded-[14px] border border-dashed border-accent bg-paper p-3.5"
           >
-            {/* 썸네일 */}
             <div
               className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-[8px] p-1 text-center text-[10px] font-bold text-white"
               style={{
@@ -33,7 +34,6 @@ export function NeedFeedbackSection({ items }: Props) {
               {item.label}
             </div>
 
-            {/* 텍스트 */}
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-bold">{item.name}</p>
               <p className="truncate text-[11px] leading-snug text-ink-60">{item.tagline}</p>
@@ -48,7 +48,6 @@ export function NeedFeedbackSection({ items }: Props) {
               </p>
             </div>
 
-            {/* CTA */}
             <Link
               href={`/feedback/${item.slug}`}
               className="flex-shrink-0 rounded-full bg-ink px-3 py-1.5 text-[11px] font-bold text-cream transition-opacity hover:opacity-80"
