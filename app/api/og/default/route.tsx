@@ -53,28 +53,40 @@ export async function GET() {
           </span>
         </div>
 
-        {/* 중단: 메인 카피 (大) */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-          <p
-            style={{
-              fontSize: 56,
-              fontWeight: 800,
-              color: "#FFFFFF",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.2,
-              margin: 0,
-            }}
-          >
-            프로젝트를 공개하고
-            <br />
-            다른 사람들의 피드백을 받아보세요
-          </p>
+        {/* 중단: 메인 카피 (大) — 두 줄 명시적 분리 */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <p
+              style={{
+                fontSize: 52,
+                fontWeight: 800,
+                color: "#FFFFFF",
+                letterSpacing: "-0.03em",
+                lineHeight: 1.2,
+                margin: 0,
+              }}
+            >
+              프로젝트를 공개하고
+            </p>
+            <p
+              style={{
+                fontSize: 52,
+                fontWeight: 800,
+                color: "#FFFFFF",
+                letterSpacing: "-0.03em",
+                lineHeight: 1.2,
+                margin: 0,
+              }}
+            >
+              다른 사람들의 피드백을 받아보세요
+            </p>
+          </div>
 
           {/* 서브 카피 (中) */}
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <p
               style={{
-                fontSize: 24,
+                fontSize: 23,
                 fontWeight: 700,
                 color: "#F04D2E",
                 margin: 0,
@@ -85,7 +97,7 @@ export async function GET() {
             </p>
             <p
               style={{
-                fontSize: 22,
+                fontSize: 21,
                 fontWeight: 400,
                 color: "#9a958a",
                 margin: 0,
