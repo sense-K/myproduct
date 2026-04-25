@@ -3,9 +3,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { toCertificateHTML, type CertData } from "@/components/certificate/CertificateTemplate";
 import { SITE_URL } from "@/lib/seo/config";
 
-// Edge runtime: Cloudflare Pages 바인딩에 접근하기 위해 필요
-export const runtime = "edge";
-
 // ─── Cloudflare 브라우저 바인딩 가져오기 ─────────────────────────────────────
 // CF Pages 환경에서만 사용 가능. 로컬 Node.js dev에서는 null 반환.
 async function getCFBrowser(): Promise<unknown | null> {
