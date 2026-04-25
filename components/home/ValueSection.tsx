@@ -16,9 +16,12 @@ const VALUES = [
   },
 ];
 
+import { Container } from "@/components/layout/Container";
+
 export function ValueSection() {
   return (
-    <section className="bg-ink px-4 py-8 sm:px-6" aria-label="마이프로덕트 핵심 가치">
+    <section className="bg-ink py-8" aria-label="마이프로덕트 핵심 가치">
+      <Container>
       <h2 className="text-[18px] font-extrabold leading-snug tracking-tight text-cream">
         여기서만 얻을 수 있는 것
       </h2>
@@ -39,6 +42,7 @@ export function ValueSection() {
           </li>
         ))}
       </ul>
+      </Container>
     </section>
   );
 }

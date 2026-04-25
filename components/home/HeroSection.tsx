@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { Container } from "@/components/layout/Container";
 
 type Props = { isLoggedIn: boolean };
 
 export function HeroSection({ isLoggedIn }: Props) {
   return (
-    <section className="px-4 pb-8 pt-10 sm:px-6 sm:pt-14">
+    <section className="pb-8 pt-10 sm:pt-14">
+      <Container>
       {/* H1 */}
       <h1 className="text-[26px] font-extrabold leading-tight tracking-tight sm:text-3xl">
         프로젝트를 공개하고
@@ -67,6 +69,7 @@ export function HeroSection({ isLoggedIn }: Props) {
           다른 작품 둘러보기
         </Link>
       </div>
+      </Container>
     </section>
   );
 }

@@ -10,7 +10,8 @@ type Props = {
 
 export function FeedbackSummary({ feedbackCount, careerDistribution, productSlug, isOwner }: Props) {
   return (
-    <section className="border-b border-ink-10 bg-paper px-4 py-6 sm:px-6">
+    <section className="border-b border-ink-10 bg-paper py-6">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
       <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-ink-40">
         <span className="mr-1">💬</span> 메이커들의 검토
       </p>
@@ -44,6 +45,7 @@ export function FeedbackSummary({ feedbackCount, careerDistribution, productSlug
         >
           {isOwner ? `피드백 ${feedbackCount}건 전체 읽기 →` : "피드백 작성하고 등록권 얻기 →"}
         </Link>
+      </div>
       </div>
     </section>
   );

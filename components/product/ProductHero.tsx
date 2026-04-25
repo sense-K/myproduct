@@ -49,7 +49,8 @@ export function ProductHero({ product, isOwner }: Props) {
   const certDate = certificate ? formatDate(certificate.issued_at) : null;
 
   return (
-    <section className="bg-paper px-4 pb-5 pt-5 sm:px-6">
+    <section className="bg-paper pb-5 pt-5">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
       {/* 썸네일 */}
       <div
         className="relative mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-[14px] bg-gradient-to-br from-[#2D5F3F] to-[#3d7a52] text-xl font-extrabold text-white"
@@ -131,6 +132,7 @@ export function ProductHero({ product, isOwner }: Props) {
             💬 이 제품에 피드백 주기
           </Link>
         )}
+      </div>
       </div>
     </section>
   );

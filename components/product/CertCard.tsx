@@ -26,7 +26,8 @@ export function CertCard({ certificate, productName, nickname }: Props) {
   const hashShort = content_hash.slice(0, 8) + "...";
 
   return (
-    <section className="border-b border-ink-10 bg-cream px-4 py-6 sm:px-6">
+    <section className="border-b border-ink-10 bg-cream py-6">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
       <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-ink-40">
         <span className="mr-1">🛡️</span> 등록 증명
       </p>
@@ -67,6 +68,7 @@ export function CertCard({ certificate, productName, nickname }: Props) {
         >
           공개 레지스트리에서 검증 →
         </Link>
+      </div>
       </div>
     </section>
   );

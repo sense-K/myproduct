@@ -11,7 +11,7 @@ const LINKS = [
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-ink-10 bg-paper">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <nav className="flex flex-wrap gap-x-5 gap-y-2">
           {LINKS.map((l) => (
             <Link

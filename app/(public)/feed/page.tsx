@@ -149,8 +149,8 @@ export default async function FeedPage({
       {page < totalPages && <link rel="next" href={buildCanonical(cat, page + 1)} />}
       <link rel="canonical" href={canonical} />
 
-      <div className="mx-auto max-w-5xl">
-        <div className="px-4 pt-5 sm:px-6">
+      <div className="mx-auto max-w-7xl">
+        <div className="px-4 pt-5 sm:px-6 lg:px-8">
           <h1 className="text-[22px] font-extrabold tracking-tight">
             {cat === "all" ? "모든 제품" : `${catLabel} 제품`}
           </h1>

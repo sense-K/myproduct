@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { Container } from "@/components/layout/Container";
 
 type Props = { isLoggedIn: boolean };
 
 export function FooterCta({ isLoggedIn }: Props) {
   return (
-    <section className="border-t border-ink-10 bg-cream px-4 py-10 text-center sm:px-6">
+    <section className="border-t border-ink-10 bg-cream py-10">
+      <Container className="text-center">
       <h2 className="text-[18px] font-extrabold tracking-tight">지금 시작해볼까요?</h2>
       <p className="mt-2 text-[12px] text-ink-60">
         첫 등록 전에 다른 메이커 제품에 피드백 1개만 남겨주세요
@@ -24,6 +26,7 @@ export function FooterCta({ isLoggedIn }: Props) {
           서비스 더 알아보기
         </Link>
       </div>
+      </Container>
     </section>
   );
 }

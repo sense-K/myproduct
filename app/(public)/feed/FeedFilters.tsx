@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/constants/user";
+import { Container } from "@/components/layout/Container";
 
 const ALL_CAT = { value: "all", label: "전체" };
 const CAT_TABS = [ALL_CAT, ...CATEGORIES.map((c) => ({ value: c.value, label: c.label }))];
@@ -28,9 +29,10 @@ function buildHref(cat: string, sort: string, page?: number) {
 export function FeedFilters({ currentCat, currentSort, total }: Props) {
   return (
     <div className="sticky top-14 z-20 bg-cream/95 backdrop-blur-sm">
+      <Container>
       {/* 카테고리 탭 */}
       <div
-        className="scrollbar-hide -mx-4 flex gap-1.5 overflow-x-auto px-4 pt-4 pb-2 sm:-mx-6 sm:px-6"
+        className="scrollbar-hide -mx-4 flex gap-1.5 overflow-x-auto px-4 pt-4 pb-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
         role="tablist"
         aria-label="카테고리 필터"
       >
@@ -55,7 +57,7 @@ export function FeedFilters({ currentCat, currentSort, total }: Props) {
       </div>
 
       {/* 정렬 + 총 개수 */}
-      <div className="flex items-center justify-between px-4 py-2 sm:px-6">
+      <div className="flex items-center justify-between py-2">
         <p className="text-[12px] text-ink-40">
           제품 <strong className="font-semibold text-ink-60">{total}</strong>개
         </p>
@@ -79,6 +81,7 @@ export function FeedFilters({ currentCat, currentSort, total }: Props) {
           })}
         </div>
       </div>
+      </Container>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { NeedFeedbackItem } from "@/types/feed";
+import { Container } from "@/components/layout/Container";
 
 type Props = { items: NeedFeedbackItem[] };
 
@@ -7,7 +8,8 @@ export function NeedFeedbackSection({ items }: Props) {
   if (items.length === 0) return null;
 
   return (
-    <section className="bg-paper px-4 pb-4 pt-7 sm:px-6">
+    <section className="bg-paper pb-4 pt-7">
+      <Container>
       <div className="flex items-baseline justify-between">
         <h2 className="text-[16px] font-extrabold tracking-tight">피드백 기다리는 제품</h2>
         <Link href="/feed?sort=need_feedback" className="text-[11px] text-ink-60 hover:text-ink">
@@ -57,6 +59,7 @@ export function NeedFeedbackSection({ items }: Props) {
           </li>
         ))}
       </ul>
+      </Container>
     </section>
   );
 }

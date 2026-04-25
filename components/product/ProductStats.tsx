@@ -7,10 +7,8 @@ type Props = {
 
 export function ProductStats({ viewCount, feedbackCount, clickCount, isOwner }: Props) {
   return (
-    <section
-      className="flex items-stretch border-b border-t border-ink-10 bg-cream text-center"
-      aria-label="제품 통계"
-    >
+    <section className="border-b border-t border-ink-10 bg-cream" aria-label="제품 통계">
+      <div className="mx-auto flex max-w-3xl items-stretch text-center">
       <div className="flex flex-1 flex-col items-center py-4">
         <span className="text-[18px] font-extrabold tracking-tight">{viewCount.toLocaleString()}</span>
         <span className="mt-1 text-[10px] font-medium text-ink-60">조회수</span>
@@ -34,6 +32,7 @@ export function ProductStats({ viewCount, feedbackCount, clickCount, isOwner }: 
           </div>
         </>
       )}
+      </div>
     </section>
   );
 }

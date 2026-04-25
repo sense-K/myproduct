@@ -10,7 +10,8 @@ export function MakerQuote({ quote, nickname, careerTag }: Props) {
   const careerLabel = CAREER_TAGS.find((t) => t.value === careerTag)?.label ?? careerTag;
 
   return (
-    <section className="border-b border-ink-10 bg-paper px-4 py-6 sm:px-6">
+    <section className="border-b border-ink-10 bg-paper py-6">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
       <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-40">
         <span className="mr-1 text-accent">✎</span> 만든 사람 한마디
       </p>
@@ -28,6 +29,7 @@ export function MakerQuote({ quote, nickname, careerTag }: Props) {
       <p className="mt-3 text-[11px] font-medium text-ink-60">
         {nickname} · 창업 {careerLabel} 메이커
       </p>
+      </div>
     </section>
   );
 }

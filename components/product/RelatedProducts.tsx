@@ -15,7 +15,8 @@ export function RelatedProducts({ products, category }: Props) {
   if (products.length === 0) return null;
 
   return (
-    <section className="border-b border-ink-10 bg-paper px-4 py-6 sm:px-6">
+    <section className="border-b border-ink-10 bg-paper py-6">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
       <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-ink-40">
         비슷한 분야의 제품
       </p>
@@ -65,6 +66,7 @@ export function RelatedProducts({ products, category }: Props) {
       >
         한국 인디 {getCategoryLabel(category)} 제품 더 보기 →
       </Link>
+      </div>
     </section>
   );
 }

@@ -187,7 +187,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <JsonLd schema={breadcrumbSchema} />
 
       {/* 슬림 네비 */}
-      <nav className="flex items-center gap-2 border-b border-ink-10 bg-cream/95 px-3 py-2.5 backdrop-blur-sm sm:px-5">
+      <nav className="border-b border-ink-10 bg-cream/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-2.5 sm:px-6">
         <Link
           href="/feed"
           className="flex h-9 w-9 items-center justify-center rounded-[8px] text-lg text-ink transition-colors hover:bg-ink-10"
@@ -210,6 +211,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </Link>
           )}
           <ShareButton title={product.name} url={pageUrl} />
+        </div>
         </div>
       </nav>
 

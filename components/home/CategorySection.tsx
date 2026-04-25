@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CATEGORIES } from "@/lib/constants/user";
 import { ProductCard } from "./ProductCard";
 import type { HomeProduct } from "@/types/feed";
+import { Container } from "@/components/layout/Container";
 
 type Props = { products: HomeProduct[] };
 
@@ -16,7 +17,8 @@ export function CategorySection({ products }: Props) {
 
   if (products.length === 0) {
     return (
-      <section className="bg-paper px-4 pb-10 pt-7 sm:px-6">
+      <section className="bg-paper pb-10 pt-7">
+        <Container>
         <div className="flex items-baseline justify-between">
           <h2 className="text-[16px] font-extrabold tracking-tight">최근 올라온 제품</h2>
         </div>
@@ -43,6 +45,7 @@ export function CategorySection({ products }: Props) {
             </Link>
           </div>
         </div>
+        </Container>
       </section>
     );
   }
@@ -51,7 +54,8 @@ export function CategorySection({ products }: Props) {
     active === "all" ? products : products.filter((p) => p.category === active);
 
   return (
-    <section className="bg-paper px-4 pb-4 pt-7 sm:px-6">
+    <section className="bg-paper pb-4 pt-7">
+      <Container>
       <div className="flex items-baseline justify-between">
         <h2 className="text-[16px] font-extrabold tracking-tight">최근 올라온 제품</h2>
         <Link href="/feed" className="text-[11px] text-ink-60 hover:text-ink">
@@ -61,7 +65,7 @@ export function CategorySection({ products }: Props) {
       <p className="mt-1 text-[12px] text-ink-60">오늘 새로 등록된 작업물들을 먼저 보여드려요</p>
 
       <div
-        className="scrollbar-hide -mx-4 mt-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6"
+        className="scrollbar-hide -mx-4 mt-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
         role="tablist"
         aria-label="카테고리 필터"
       >
@@ -95,6 +99,7 @@ export function CategorySection({ products }: Props) {
           </p>
         )}
       </div>
+      </Container>
     </section>
   );
 }

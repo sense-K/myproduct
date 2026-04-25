@@ -13,7 +13,8 @@ function formatDate(iso: string) {
 
 export function Timeline({ versions, productSlug, isOwner }: Props) {
   return (
-    <section className="border-b border-ink-10 bg-cream px-4 py-6 sm:px-6">
+    <section className="border-b border-ink-10 bg-cream py-6">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
       <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-ink-40">
         <span className="mr-1">🌱</span> 성장 기록
       </p>
@@ -60,6 +61,7 @@ export function Timeline({ versions, productSlug, isOwner }: Props) {
           + 새 버전 추가하기
         </Link>
       )}
+      </div>
     </section>
   );
 }
