@@ -36,7 +36,7 @@ export async function generateStaticParams() {
       .select("slug")
       .eq("status", "public")
       .limit(500);
-    if (data && data.length > 0) return data.map((p) => ({ slug: p.slug }));
+    if (data && data.length > 0) return data.map((p: { slug: string }) => ({ slug: p.slug }));
   } catch {
     // DB 없으면 mock slug 반환
   }

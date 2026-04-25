@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .order("created_at", { ascending: false })
       .limit(5000);
 
-    const productUrls: MetadataRoute.Sitemap = (products ?? []).map((p) => ({
+    const productUrls: MetadataRoute.Sitemap = (products ?? []).map((p: { slug: string; updated_at: string }) => ({
       url: `${SITE_URL}/p/${p.slug}`,
       lastModified: new Date(p.updated_at),
       changeFrequency: "weekly",
@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .order("created_at", { ascending: false })
       .limit(5000);
 
-    const registryUrls: MetadataRoute.Sitemap = (registry ?? []).map((r) => ({
+    const registryUrls: MetadataRoute.Sitemap = (registry ?? []).map((r: { registration_number: string; created_at: string }) => ({
       url: `${SITE_URL}/registry/${r.registration_number}`,
       lastModified: new Date(r.created_at),
       changeFrequency: "never",
