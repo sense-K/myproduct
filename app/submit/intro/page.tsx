@@ -14,7 +14,7 @@ const STEPS = [
   {
     num: "2",
     title: "내 제품 올리기 + 등록 증명서 자동 발급",
-    body: "URL 하나면 AI가 제품명·소개·카테고리를 채워줘요. 올리는 순간 타임스탬프 증명서가 발급돼요.",
+    body: "제품명·소개·카테고리를 직접 입력하면 돼요. 올리는 순간 타임스탬프 증명서가 발급돼요.",
   },
   {
     num: "3",
@@ -26,8 +26,8 @@ const STEPS = [
 export default async function SubmitIntroPage() {
   const balance = await getCreditBalance();
 
-  // 등록권 있으면 바로 URL 입력으로
-  if (balance >= 1) redirect("/submit/url");
+  // 등록권 있으면 바로 수동 입력으로 (AI 자동 채움 일시 비활성화)
+  if (balance >= 1) redirect("/submit/manual");
 
   return (
     <div className="mx-auto flex min-h-screen max-w-lg flex-col px-4 py-8">
