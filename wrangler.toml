@@ -19,3 +19,4 @@ binding = "BROWSER"
 [vars]
 NEXT_PUBLIC_SUPABASE_URL = "https://lkejzmtgpktrlnkkhatb.supabase.co"
 NEXT_PUBLIC_SITE_URL = "https://myproduct.kr"
+NEXT_PUBLIC_GSC_VERIFICATION = "yJq1VYh0gMlkN1aC4-9OntxI04hLRq1Td4bNTMFyhFY"

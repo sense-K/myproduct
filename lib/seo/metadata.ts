@@ -58,6 +58,9 @@ export const rootMetadata: Metadata = {
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
   alternates: { canonical: SITE_URL },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GSC_VERIFICATION,
+  },
 };
 
 // ─── 페이지별 메타데이터 빌더 ────────────────────────────────────────────────
