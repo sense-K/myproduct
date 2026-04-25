@@ -3,7 +3,6 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SITE_NAME } from "@/lib/seo/config";
 import { FeedbackForm } from "./feedback-form";
-import { getMockProduct } from "@/lib/mock/products";
 
 export const dynamic = "force-dynamic";
 
@@ -18,26 +17,10 @@ async function getProduct(slug: string) {
       .eq("slug", slug)
       .eq("status", "public")
       .maybeSingle();
-    if (data) return data;
+    return data ?? null;
   } catch {
-    // DB 미연동 → mock 폴백
+    return null;
   }
-
-  // MOCK_PRODUCTS (상세 데이터)
-  const mock = getMockProduct(slug);
-  if (mock) {
-    return {
-      id: mock.id,
-      slug: mock.slug,
-      name: mock.name,
-      tagline: mock.tagline,
-      thumbnail_url: mock.thumbnail_url,
-      external_url: mock.external_url,
-      feedback_count: mock.feedback_count,
-    };
-  }
-
-  return null;
 }
 
 export default async function FeedbackSlugPage({ params }: PageProps) {

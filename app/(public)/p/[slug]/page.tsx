@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getAuthState } from "@/lib/auth/server";
-import { getMockProduct, getAllMockSlugs } from "@/lib/mock/products";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { buildProductMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildProductSchema, buildBreadcrumbSchema } from "@/lib/seo/json-ld";
@@ -29,28 +29,24 @@ type PageProps = { params: Promise<{ slug: string }> };
 // ISR: 빌드 시 알려진 슬러그 미리 생성
 export async function generateStaticParams() {
   try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = await createClient();
-    const { data } = await supabase
+    const admin = createAdminClient();
+    const { data } = await admin
       .from("products")
       .select("slug")
       .eq("status", "public")
       .limit(500);
-    if (data && data.length > 0) return data.map((p: { slug: string }) => ({ slug: p.slug }));
+    return (data ?? []).map((p: { slug: string }) => ({ slug: p.slug }));
   } catch {
-    // DB 없으면 mock slug 반환
+    return [];
   }
-  return getAllMockSlugs().map((slug) => ({ slug }));
 }
 
 // ─── 제품 데이터 패칭 ──────────────────────────────────────────────────────────
 
 async function fetchProduct(slug: string) {
-  // 1) DB 시도
   try {
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = await createClient();
-    const { data: product } = await supabase
+    const admin = createAdminClient();
+    const { data: product } = await admin
       .from("products")
       .select(`
         id, slug, name, tagline, maker_quote, category,
@@ -64,26 +60,20 @@ async function fetchProduct(slug: string) {
       .eq("status", "public")
       .maybeSingle();
 
-    if (product) return { source: "db" as const, data: product };
+    return product ?? null;
   } catch {
-    // DB 오류 → mock 폴백
+    return null;
   }
-
-  // 2) Mock 폴백 (개발 환경)
-  const mock = getMockProduct(slug);
-  if (mock) return { source: "mock" as const, data: mock };
-
-  return null;
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const result = await fetchProduct(slug);
-  if (!result) return { title: "제품을 찾을 수 없어요" };
+  const product = await fetchProduct(slug);
+  if (!product) return { title: "제품을 찾을 수 없어요" };
 
-  const p = result.data as any;
+  const p = product as any;
   const name = p.name;
   const tagline = (p.tagline as string).slice(0, 80);
   const regDate = new Date(p.created_at).toLocaleDateString("ko-KR");
@@ -98,7 +88,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       slug,
       thumbnailUrl: p.thumbnail_url ?? ogImageUrl,
       category: p.category,
-      makerNickname: p.owner_nickname ?? p.users?.nickname ?? "메이커",
+      makerNickname: p.users?.nickname ?? "메이커",
     }),
     description: `${tagline} | ${regDate} 등록 · 메이커 ${fbCount}명의 피드백`,
     openGraph: {
@@ -119,40 +109,45 @@ function getCategoryLabel(value: string) {
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [result, { authUser }] = await Promise.all([fetchProduct(slug), getAuthState()]);
+  const [raw, { authUser }] = await Promise.all([fetchProduct(slug), getAuthState()]);
 
-  if (!result) notFound();
+  if (!raw) notFound();
 
-  // DB row와 mock 모두 동일한 인터페이스로 정규화
-  const raw = result.data as any;
-  const isMock = result.source === "mock";
+  const p = raw as any;
 
   const product = {
-    id: raw.id,
-    slug: raw.slug,
-    name: raw.name,
-    tagline: raw.tagline,
-    maker_quote: raw.maker_quote,
-    category: raw.category,
-    thumbnail_url: raw.thumbnail_url ?? null,
-    external_url: raw.external_url ?? null,
-    view_count: raw.view_count ?? 0,
-    click_count: raw.click_count ?? 0,
-    feedback_count: raw.feedback_count ?? 0,
-    created_at: raw.created_at,
-    updated_at: raw.updated_at,
-    status: raw.status,
-    owner_id: raw.owner_id,
-    owner_nickname: isMock ? raw.owner_nickname : (raw.users?.nickname ?? "익명 메이커"),
-    owner_career_tag: isMock ? raw.owner_career_tag : (raw.users?.career_tag ?? "pre_founder"),
-    certificate: isMock
-      ? raw.certificate
-      : raw.certificates?.[0] ?? null,
-    versions: isMock
-      ? raw.versions
-      : (raw.product_versions ?? []).sort((a: any, b: any) => b.version_number - a.version_number),
-    career_distribution: isMock ? raw.career_distribution : [],
-    related: isMock ? raw.related : [],
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    tagline: p.tagline,
+    maker_quote: p.maker_quote,
+    category: p.category,
+    thumbnail_url: p.thumbnail_url ?? null,
+    external_url: p.external_url ?? null,
+    view_count: p.view_count ?? 0,
+    click_count: p.click_count ?? 0,
+    feedback_count: p.feedback_count ?? 0,
+    created_at: p.created_at,
+    updated_at: p.updated_at,
+    status: p.status,
+    owner_id: p.owner_id,
+    owner_nickname: p.users?.nickname ?? "익명 메이커",
+    owner_career_tag: p.users?.career_tag ?? "pre_founder",
+    certificate: p.certificates?.[0] ?? null,
+    versions: (p.product_versions ?? []).sort(
+      (a: any, b: any) => b.version_number - a.version_number,
+    ),
+    career_distribution: [] as { career_tag: string; label: string; count: number }[],
+    related: [] as {
+      slug: string;
+      name: string;
+      tagline: string;
+      feedback_count: number;
+      hasCertificate: boolean;
+      gradientFrom: string;
+      gradientTo: string;
+      label: string;
+    }[],
   };
 
   const isOwner = !!authUser && authUser.id === product.owner_id;

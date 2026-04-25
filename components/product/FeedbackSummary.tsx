@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { CareerDist } from "@/lib/mock/products";
+import type { CareerDist } from "@/types/product";
 
 type Props = {
   feedbackCount: number;

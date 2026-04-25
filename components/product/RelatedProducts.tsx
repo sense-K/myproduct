@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/constants/user";
-import type { RelatedProduct } from "@/lib/mock/products";
+import type { RelatedProduct } from "@/types/product";
 
 type Props = {
   products: RelatedProduct[];

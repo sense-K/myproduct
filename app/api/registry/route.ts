@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { RegistryEntry } from "@/lib/mock/registry";
+type RegistryEntry = {
+  registration_number: string;
+  issued_at: string;
+  product_name: string;
+  tagline: string;
+  nickname: string;
+  hash_short: string;
+  product_slug: string | null;
+};
 
 const PAGE_SIZE = 20;
 

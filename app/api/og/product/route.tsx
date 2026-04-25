@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getMockProduct } from "@/lib/mock/products";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { CATEGORIES } from "@/lib/constants/user";
 import { SITE_NAME } from "@/lib/seo/config";
 
@@ -12,18 +12,35 @@ function getCategoryLabel(value: string) {
   return CATEGORIES.find((c) => c.value === value)?.label ?? value;
 }
 
+async function fetchProductForOg(slug: string) {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from("products")
+      .select("name, tagline, category, feedback_count, certificates(registration_number)")
+      .eq("slug", slug)
+      .eq("status", "public")
+      .maybeSingle();
+    return data ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("slug") ?? "";
 
-  // DB 연동 후: DB에서 fetch → mock은 폴백
-  const product = getMockProduct(slug);
+  const product = slug ? await fetchProductForOg(slug) : null;
+  const p = product as any;
 
-  const name = product?.name ?? (slug || "마이프로덕트 제품");
-  const tagline = product?.tagline ?? "";
-  const category = product ? getCategoryLabel(product.category) : "";
-  const feedbackCount = product?.feedback_count ?? 0;
-  const hasCert = !!product?.certificate;
+  const name = p?.name ?? (slug || "마이프로덕트 제품");
+  const tagline = p?.tagline ?? "한국 인디 메이커의 진짜 피드백";
+  const category = p ? getCategoryLabel(p.category) : "";
+  const feedbackCount = p?.feedback_count ?? 0;
+  const hasCert = Array.isArray(p?.certificates)
+    ? p.certificates.length > 0
+    : !!p?.certificates;
 
   return new ImageResponse(
     (

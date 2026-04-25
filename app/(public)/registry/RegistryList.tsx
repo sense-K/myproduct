@@ -2,7 +2,15 @@
 
 import { useState, useEffect, useRef, useTransition } from "react";
 import Link from "next/link";
-import type { RegistryEntry } from "@/lib/mock/registry";
+type RegistryEntry = {
+  registration_number: string;
+  issued_at: string;
+  product_name: string;
+  tagline: string;
+  nickname: string;
+  hash_short: string;
+  product_slug: string | null;
+};
 
 type Props = {
   initialItems: RegistryEntry[];

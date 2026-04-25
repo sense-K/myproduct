@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ExternalLinkButton } from "./ExternalLinkButton";
 import { CATEGORIES, CAREER_TAGS } from "@/lib/constants/user";
-import type { ProductPageData } from "@/lib/mock/products";
+import type { ProductPageData } from "@/types/product";
 
 type Props = {
   product: ProductPageData;

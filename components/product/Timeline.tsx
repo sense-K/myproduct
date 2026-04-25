@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { VersionItem } from "@/lib/mock/products";
+import type { VersionItem } from "@/types/product";
 
 type Props = {
   versions: VersionItem[];

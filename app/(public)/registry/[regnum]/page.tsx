@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { MOCK_REGISTRY } from "@/lib/mock/registry";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/config";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildBreadcrumbSchema } from "@/lib/seo/json-ld";
@@ -28,26 +27,9 @@ async function getCert(regnum: string) {
       .eq("registration_number", regnum)
       .maybeSingle();
 
-    if (data) return { ...data, source: "db" as const };
-  } catch { /* DB 미연동 */ }
+    if (data) return data;
+  } catch { /* DB 오류 */ }
 
-  const mock = MOCK_REGISTRY.find((r) => r.registration_number === regnum);
-  if (mock) {
-    return {
-      registration_number: mock.registration_number,
-      content_hash: mock.hash_short + "0".repeat(48),
-      issued_at: mock.issued_at,
-      product_name_snapshot: mock.product_name,
-      tagline_snapshot: mock.tagline,
-      category_snapshot: "saas",
-      nickname_snapshot: mock.nickname,
-      career_tag_snapshot: "pre_founder",
-      pdf_url: `${SITE_URL}/api/cert/${mock.registration_number}/pdf`,
-      product_id: null,
-      products: mock.product_slug ? { slug: mock.product_slug, status: "public" } : null,
-      source: "mock" as const,
-    };
-  }
   return null;
 }
 

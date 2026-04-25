@@ -161,15 +161,13 @@ export async function getRecommendedProducts(): Promise<PickProduct[]> {
 
     const { data: candidates } = await query;
 
-    if (!candidates || candidates.length === 0) throw new Error("no data");
-
     const GRADIENTS = [
       ["#2D5F3F", "#3d7a52"],
       ["#D4A574", "#b88751"],
       ["#5B6B8A", "#3d4d6b"],
     ];
 
-    return candidates
+    return (candidates ?? [])
       .filter((p) => !givenProductIds.includes(p.id))
       .slice(0, 3)
       .map((p, i) => ({
@@ -185,24 +183,6 @@ export async function getRecommendedProducts(): Promise<PickProduct[]> {
         ),
       }));
   } catch {
-    // DB 없을 때 mock 폴백
-    const { FEED_MOCK } = await import("@/lib/mock/feed");
-    const GRADIENTS = [
-      ["#2D5F3F", "#3d7a52"],
-      ["#D4A574", "#b88751"],
-      ["#5B6B8A", "#3d4d6b"],
-    ];
-    return FEED_MOCK.filter((p) => p.feedback_count <= 1)
-      .slice(0, 3)
-      .map((p, i) => ({
-        slug: p.slug,
-        name: p.name,
-        tagline: p.tagline,
-        feedback_count: p.feedback_count,
-        gradientFrom: GRADIENTS[i % 3][0],
-        gradientTo: GRADIENTS[i % 3][1],
-        label: p.label,
-        daysAgo: 1,
-      }));
+    return [];
   }
 }
