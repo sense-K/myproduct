@@ -5,79 +5,93 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateContentHash, generateRegistrationNumber } from "./hash";
 import { generateUniqueSlug } from "./slug";
-import { CATEGORY_VALUES, type Category } from "@/lib/constants/user";
+import { type Category } from "@/lib/constants/user";
+import {
+  PRODUCT_CATEGORY_VALUES,
+  type ProductStage,
+  type PricingModel,
+} from "@/lib/constants/product";
 
 // ─── AI 자동 채움 ─────────────────────────────────────────────────────────────
 
 export type AiFillResult =
-  | { ok: true; name: string; tagline: string; category: Category; thumbnailUrl: string | null }
+  | {
+      ok: true;
+      name: string;
+      tagline: string;
+      category: Category;
+      thumbnailUrl: string | null;
+      target_audience: string;
+      problem_statement: string;
+      solution_approach: string;
+      differentiator: string;
+      product_stage: ProductStage | null;
+      pricing_model: PricingModel | null;
+      auto_filled_fields: string[];
+    }
   | { ok: false; error: string };
 
 // SSRF 방어: 공개 외부 URL만 허용
 function isValidPublicUrl(rawUrl: string): boolean {
   let parsed: URL;
   try { parsed = new URL(rawUrl); } catch { return false; }
-
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
-
   const host = parsed.hostname.toLowerCase().replace(/\.+$/, "");
-
-  // 로컬 호스트 차단
   if (host === "localhost" || host === "localhost.localdomain") return false;
-
-  // 루프백·링크로컬·메타데이터 IP 문자열 차단
   const blocked = ["127.0.0.1", "0.0.0.0", "::1", "169.254.169.254"];
   if (blocked.includes(host)) return false;
-
-  // IPv4 사설 대역 차단 (10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x)
   const parts = host.split(".").map(Number);
   if (parts.length === 4 && parts.every((n) => !isNaN(n) && n >= 0 && n <= 255)) {
     const [a, b] = parts;
-    if (a === 10) return false;
-    if (a === 127) return false;
+    if (a === 10 || a === 127) return false;
     if (a === 169 && b === 254) return false;
     if (a === 172 && b >= 16 && b <= 31) return false;
     if (a === 192 && b === 168) return false;
   }
-
   return true;
 }
 
-// 큰따옴표·작은따옴표 모두 처리하는 메타 추출
+// og:title / og:description / og:image 추출 (regex 기반, no DOM)
 function extractMeta(html: string) {
-  const q = `["']`;
-  const val = (attr: string) =>
-    new RegExp(`${attr}\\s*=\\s*${q}([^"']+)${q}`, "i");
-
-  const ogAttr = (prop: string) =>
-    html.match(
-      new RegExp(
-        `property\\s*=\\s*${q}${prop}${q}[^>]*content\\s*=\\s*${q}([^"']+)${q}`,
-        "i",
-      ),
-    )?.[1] ??
-    html.match(
-      new RegExp(
-        `content\\s*=\\s*${q}([^"']+)${q}[^>]*property\\s*=\\s*${q}${prop}${q}`,
-        "i",
-      ),
-    )?.[1];
-
+  const ogAttr = (prop: string) => {
+    const q = `["']`;
+    return (
+      html.match(new RegExp(`property\\s*=\\s*${q}${prop}${q}[^>]*content\\s*=\\s*${q}([^"']+)${q}`, "i"))?.[1] ??
+      html.match(new RegExp(`content\\s*=\\s*${q}([^"']+)${q}[^>]*property\\s*=\\s*${q}${prop}${q}`, "i"))?.[1]
+    );
+  };
   const title =
     ogAttr("og:title") ??
     html.match(/name\s*=\s*["']title["'][^>]*content\s*=\s*["']([^"']+)["']/i)?.[1] ??
     html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.trim() ??
     "";
-
   const desc =
     ogAttr("og:description") ??
     html.match(/name\s*=\s*["']description["'][^>]*content\s*=\s*["']([^"']+)["']/i)?.[1] ??
     html.match(/content\s*=\s*["']([^"']+)["'][^>]*name\s*=\s*["']description["']/i)?.[1] ??
     "";
-
   const image = ogAttr("og:image") ?? null;
-
   return { title, desc, image };
+}
+
+// HTML → 가독성 텍스트 (스크립트·스타일 제거, 앞 3000자)
+function extractPageContent(html: string): string {
+  const stripped = html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ").trim();
+  return stripped.slice(0, 3000);
+}
+
+// 상대 URL → 절대 URL
+function resolveUrl(base: string, url: string): string {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  try { return new URL(url, base).href; } catch { return url; }
 }
 
 export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
@@ -86,121 +100,140 @@ export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
 
   const normalized = rawUrl.includes("://") ? rawUrl : `https://${rawUrl}`;
   try { new URL(normalized); } catch { return { ok: false, error: "올바른 URL 형식이 아니에요" }; }
+  if (!isValidPublicUrl(normalized)) return { ok: false, error: "허용되지 않는 URL이에요" };
 
-  // SSRF 차단
-  if (!isValidPublicUrl(normalized)) {
-    return { ok: false, error: "허용되지 않는 URL이에요" };
-  }
-
+  // 1. HTML fetch (타임아웃 8초)
+  let html = "";
   try {
-    // 1. URL에서 HTML 메타 추출 (타임아웃 5초)
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
-
-    let html = "";
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
       const res = await fetch(normalized, {
-        signal: controller.signal,
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (compatible; MyProduct-Bot/1.0; +https://myproduct.kr)",
-        },
+        signal: ctrl.signal,
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; MyProduct-Bot/1.0; +https://myproduct.kr)" },
       });
       if (res.ok) html = await res.text();
-    } catch {
-      // fetch 실패해도 AI 호출 시도 (URL 자체를 단서로)
     } finally {
       clearTimeout(timer);
     }
+  } catch {
+    // fetch 실패 → URL만으로 Claude 호출 시도
+  }
 
-    const { title: ogTitle, desc: ogDesc, image: ogImage } = extractMeta(html);
+  const { title: ogTitle, desc: ogDesc, image: ogImageRaw } = extractMeta(html);
+  const ogImage = ogImageRaw ? resolveUrl(normalized, ogImageRaw) : null;
+  const pageText = extractPageContent(html);
 
-    // 2. Claude API 호출
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      console.error("[aiFillFromUrl] ANTHROPIC_API_KEY is not set");
-      throw new Error("ANTHROPIC_API_KEY not set");
+  // 2. Claude API 호출 (타임아웃 30초)
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
+
+  const anthropic = new Anthropic({ apiKey });
+
+  const prompt = [
+    "다음 제품 웹사이트 정보를 분석해서 JSON만 반환하세요. 다른 텍스트 없음.",
+    "추출 불가능한 필드는 빈 문자열 (\"\"). 절대 거짓 정보 생성 금지.",
+    "",
+    `URL: ${normalized}`,
+    `페이지 제목: ${ogTitle}`,
+    `설명: ${ogDesc}`,
+    pageText ? `\n본문 내용(일부):\n${pageText}` : "",
+    "",
+    "반환 형식 (JSON only):",
+    "{",
+    '  "name": "제품명 (2~40자)",',
+    '  "tagline": "누구를 위한, 어떤 문제 해결 한 문장 (최대 150자)",',
+    '  "category": "dev_tools|productivity|ai_data|community_content|learning|lifestyle|finance_commerce|etc",',
+    '  "target_audience": "구체적인 타겟 사용자 (최대 200자)",',
+    '  "problem_statement": "해결하는 문제 (최대 200자)",',
+    '  "solution_approach": "해결 방법 (최대 200자)",',
+    '  "differentiator": "차별점/강점 (최대 200자)",',
+    '  "product_stage": "idea|prototype|beta|launched",',
+    '  "pricing_model": "free|freemium|paid|tbd"',
+    "}",
+    "",
+    "규칙:",
+    "- product_stage: 라이브 서비스·결제·가입 가능하면 launched, 베타/테스트 중이면 beta",
+    "- pricing_model: 가격 정보 불명확하면 tbd",
+    "- 한국어 서비스면 한국어로, 영어 서비스면 영어로 작성",
+  ].filter(Boolean).join("\n");
+
+  try {
+    const aiCtrl = new AbortController();
+    const aiTimer = setTimeout(() => aiCtrl.abort(), 30000);
+    let msg;
+    try {
+      msg = await anthropic.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 2000,
+        messages: [{ role: "user", content: prompt }],
+      });
+    } finally {
+      clearTimeout(aiTimer);
     }
 
-    const anthropic = new Anthropic({ apiKey });
-
-    const prompt = [
-      `다음 제품 웹사이트 정보를 바탕으로 JSON만 반환하세요 (다른 텍스트 없음):`,
-      ``,
-      `URL: ${normalized}`,
-      `페이지 제목: ${ogTitle}`,
-      `설명: ${ogDesc}`,
-      ``,
-      `반환 형식 (JSON only):`,
-      `{`,
-      `  "name": "제품명 (2~40자, 한국어 가능)",`,
-      `  "tagline": "한 줄 소개 (10~150자, 핵심 가치 중심)",`,
-      `  "category": "아래 8개 중 가장 적합한 value 하나"`,
-      `}`,
-      ``,
-      `카테고리 선택지 (value만 반환):`,
-      `  dev_tools         개발자 도구`,
-      `  productivity      생산성 / 업무`,
-      `  ai_data           AI / 데이터`,
-      `  community_content 커뮤니티 / 콘텐츠`,
-      `  learning          학습 / 교육`,
-      `  lifestyle         건강 / 라이프스타일`,
-      `  finance_commerce  금융 / 커머스`,
-      `  etc               기타`,
-      ``,
-      `규칙: name은 간결하게, tagline은 누가 쓰는지+뭘 해결하는지를 담아주세요.`,
-    ].join("\n");
-
-    const msg = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 256,
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    const text =
-      msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "";
-
-    // JSON 파싱
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const raw = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "";
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error("[aiFillFromUrl] AI response not parseable:", text.slice(0, 200));
+      console.error("[ai-fill-error] response not parseable:", raw.slice(0, 300));
       throw new Error("AI 응답을 파싱할 수 없어요");
     }
 
-    const parsed = JSON.parse(jsonMatch[0]) as {
-      name?: string;
-      tagline?: string;
-      category?: string;
-    };
+    const p = JSON.parse(jsonMatch[0]) as Record<string, string>;
 
-    const category = CATEGORY_VALUES.includes(parsed.category as Category)
-      ? (parsed.category as Category)
+    const str = (v: unknown, max: number) => String(v ?? "").slice(0, max);
+    const name    = str(p.name, 40) || ogTitle.slice(0, 40);
+    const tagline = str(p.tagline, 150) || ogDesc.slice(0, 150);
+    const category = (PRODUCT_CATEGORY_VALUES as readonly string[]).includes(p.category)
+      ? (p.category as Category)
       : "etc";
+    const target_audience  = str(p.target_audience, 200);
+    const problem_statement = str(p.problem_statement, 200);
+    const solution_approach = str(p.solution_approach, 200);
+    const differentiator   = str(p.differentiator, 200);
+    const product_stage = (["idea", "prototype", "beta", "launched"] as string[]).includes(p.product_stage)
+      ? (p.product_stage as ProductStage)
+      : null;
+    const pricing_model = (["free", "freemium", "paid", "tbd"] as string[]).includes(p.pricing_model)
+      ? (p.pricing_model as PricingModel)
+      : null;
+
+    // 실제로 채워진 필드만 auto_filled_fields에 기록
+    const auto_filled_fields: string[] = [];
+    if (name)              auto_filled_fields.push("name");
+    if (tagline)           auto_filled_fields.push("tagline");
+    if (category !== "etc" || p.category === "etc") auto_filled_fields.push("category");
+    if (target_audience)   auto_filled_fields.push("target_audience");
+    if (problem_statement) auto_filled_fields.push("problem_statement");
+    if (solution_approach) auto_filled_fields.push("solution_approach");
+    if (differentiator)    auto_filled_fields.push("differentiator");
+    if (product_stage)     auto_filled_fields.push("product_stage");
+    if (pricing_model)     auto_filled_fields.push("pricing_model");
+    if (ogImage)           auto_filled_fields.push("thumbnail_url");
 
     return {
       ok: true,
-      name: String(parsed.name ?? "").slice(0, 40) || ogTitle.slice(0, 40) || "내 제품",
-      tagline:
-        String(parsed.tagline ?? "").slice(0, 150) ||
-        ogDesc.slice(0, 150) ||
-        "한 줄 소개를 입력해주세요",
+      name,
+      tagline,
       category,
       thumbnailUrl: ogImage,
+      target_audience,
+      problem_statement,
+      solution_approach,
+      differentiator,
+      product_stage,
+      pricing_model,
+      auto_filled_fields,
     };
   } catch (err) {
     const isApiErr = err instanceof Anthropic.APIError;
     console.error("[ai-fill-error]", {
       inputUrl,
-      normalizedUrl: normalized,
       status: isApiErr ? err.status : undefined,
-      bodyPreview: isApiErr
-        ? JSON.stringify(err.error)?.slice(0, 500)
-        : String(err).slice(0, 500),
-      hasApiKey: !!process.env.ANTHROPIC_API_KEY,
-      apiKeyLength: process.env.ANTHROPIC_API_KEY?.length,
+      body: isApiErr ? JSON.stringify(err.error)?.slice(0, 300) : String(err).slice(0, 300),
+      hasApiKey: !!apiKey,
     });
-    const msg = err instanceof Error ? err.message : "AI 채움 실패";
-    return { ok: false, error: msg };
+    return { ok: false, error: err instanceof Error ? err.message : "AI 채움 실패" };
   }
 }
 

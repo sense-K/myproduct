@@ -13,6 +13,10 @@ import {
   type FeedbackCategory,
 } from "../_components/types";
 
+function AiBadge() {
+  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추측</span>;
+}
+
 export function Step4Form() {
   const router = useRouter();
   const [differentiator, setDifferentiator] = useState("");
@@ -20,6 +24,7 @@ export function Step4Form() {
   const [pricingModel, setPricingModel] = useState<PricingModel | null>(null);
   const [feedbackCats, setFeedbackCats] = useState<FeedbackCategory[]>([]);
   const [makerNote, setMakerNote] = useState("");
+  const [autoFilled, setAutoFilled] = useState<string[]>([]);
 
   useEffect(() => {
     const d = loadDraft();
@@ -29,7 +34,16 @@ export function Step4Form() {
     if (d.pricing_model) setPricingModel(d.pricing_model);
     if (d.feedback_categories?.length) setFeedbackCats(d.feedback_categories);
     if (d.maker_note) setMakerNote(d.maker_note);
+    setAutoFilled(d.auto_filled_fields ?? []);
   }, [router]);
+
+  function clearAutoFill(field: string) {
+    setAutoFilled((prev) => {
+      const next = prev.filter((f) => f !== field);
+      saveDraft({ auto_filled_fields: next });
+      return next;
+    });
+  }
 
   function toggleCat(cat: FeedbackCategory) {
     setFeedbackCats((prev) =>
@@ -49,17 +63,15 @@ export function Step4Form() {
   }
 
   const btnBase = "rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors";
-  const btnOn = `${btnBase} border-ink bg-ink text-cream`;
-  const btnOff = `${btnBase} border-ink-10 text-ink-60 hover:border-ink-40`;
+  const btnOn   = `${btnBase} border-ink bg-ink text-cream`;
+  const btnOff  = `${btnBase} border-ink-10 text-ink-60 hover:border-ink-40`;
+  const btnOnAi = `${btnBase} border-amber-400 bg-amber-50 text-amber-700`;
 
   return (
     <div className="flex flex-1 flex-col">
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
-        <button
-          onClick={() => router.push("/submit/step3")}
-          className="text-sm font-semibold text-ink-60 hover:text-ink"
-        >
+        <button onClick={() => router.push("/submit/step3")} className="text-sm font-semibold text-ink-60 hover:text-ink">
           ← 이전
         </button>
         <span className="text-[15px] font-extrabold tracking-tight">
@@ -82,50 +94,67 @@ export function Step4Form() {
       <p className="mb-6 text-[13px] text-ink-60">모두 선택 사항입니다. 채울수록 피드백 품질이 올라가요.</p>
 
       {/* 차별점 */}
-      <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
-        차별점 / 핵심 강점 <span className="text-ink-40">(선택, 200자)</span>
+      <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
+        차별점 / 핵심 강점 <span className="text-ink-40 ml-1">(선택, 200자)</span>
+        {autoFilled.includes("differentiator") && <AiBadge />}
       </label>
       <textarea
         value={differentiator}
         maxLength={200}
-        onChange={(e) => setDifferentiator(e.target.value)}
+        onChange={(e) => { setDifferentiator(e.target.value); clearAutoFill("differentiator"); }}
         placeholder="경쟁 서비스 대비 무엇이 다른지, 어떤 강점이 있는지 한 단락으로 설명해주세요."
         rows={3}
-        className="mb-1 w-full resize-none rounded-[8px] border border-ink-10 bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink"
+        className={`mb-1 w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
+          autoFilled.includes("differentiator") ? "border-amber-300 bg-amber-50/40" : "border-ink-10"
+        }`}
       />
       <p className="mb-4 text-right text-[11px] text-ink-40">{differentiator.length}/200</p>
 
       {/* 현재 단계 */}
-      <label className="mb-2 block text-[12px] font-semibold text-ink-60">현재 단계 <span className="text-ink-40">(선택)</span></label>
+      <label className="mb-2 flex items-center text-[12px] font-semibold text-ink-60">
+        현재 단계 <span className="text-ink-40 ml-1">(선택)</span>
+        {autoFilled.includes("product_stage") && <AiBadge />}
+      </label>
       <div className="mb-4 flex flex-wrap gap-2">
-        {PRODUCT_STAGE_OPTIONS.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            onClick={() => setProductStage(productStage === o.value ? null : o.value)}
-            className={productStage === o.value ? btnOn : btnOff}
-          >
-            {o.label}
-          </button>
-        ))}
+        {PRODUCT_STAGE_OPTIONS.map((o) => {
+          const isSelected = productStage === o.value;
+          const isAi = autoFilled.includes("product_stage") && isSelected;
+          return (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => { setProductStage(productStage === o.value ? null : o.value); clearAutoFill("product_stage"); }}
+              className={isAi ? btnOnAi : isSelected ? btnOn : btnOff}
+            >
+              {o.label}{isAi ? " ✨" : ""}
+            </button>
+          );
+        })}
       </div>
 
       {/* 가격대 */}
-      <label className="mb-2 block text-[12px] font-semibold text-ink-60">가격대 <span className="text-ink-40">(선택)</span></label>
+      <label className="mb-2 flex items-center text-[12px] font-semibold text-ink-60">
+        가격대 <span className="text-ink-40 ml-1">(선택)</span>
+        {autoFilled.includes("pricing_model") && <AiBadge />}
+      </label>
       <div className="mb-4 flex flex-wrap gap-2">
-        {PRICING_MODEL_OPTIONS.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            onClick={() => setPricingModel(pricingModel === o.value ? null : o.value)}
-            className={pricingModel === o.value ? btnOn : btnOff}
-          >
-            {o.label}
-          </button>
-        ))}
+        {PRICING_MODEL_OPTIONS.map((o) => {
+          const isSelected = pricingModel === o.value;
+          const isAi = autoFilled.includes("pricing_model") && isSelected;
+          return (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => { setPricingModel(pricingModel === o.value ? null : o.value); clearAutoFill("pricing_model"); }}
+              className={isAi ? btnOnAi : isSelected ? btnOn : btnOff}
+            >
+              {o.label}{isAi ? " ✨" : ""}
+            </button>
+          );
+        })}
       </div>
 
-      {/* 피드백 종류 */}
+      {/* 피드백 종류 (AI 미채움 — 메이커 본인 선택) */}
       <label className="mb-2 block text-[12px] font-semibold text-ink-60">
         받고 싶은 피드백 <span className="text-ink-40">(선택, 복수 가능)</span>
       </label>
@@ -142,7 +171,7 @@ export function Step4Form() {
         ))}
       </div>
 
-      {/* 메이커 한마디 */}
+      {/* 메이커 한마디 (AI 미채움 — 본인 감정) */}
       <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
         메이커 한마디 <span className="text-ink-40">(선택, 300자)</span>
       </label>

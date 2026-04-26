@@ -6,6 +6,10 @@ import { CATEGORIES } from "@/lib/constants/user";
 import type { Category } from "@/lib/constants/user";
 import { loadDraft, saveDraft } from "../_components/types";
 
+function AiBadge() {
+  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추측</span>;
+}
+
 export function Step1Form() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -13,6 +17,7 @@ export function Step1Form() {
   const [category, setCategory] = useState<Category>("etc");
   const [externalUrl, setExternalUrl] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [autoFilled, setAutoFilled] = useState<string[]>([]);
 
   useEffect(() => {
     const d = loadDraft();
@@ -20,7 +25,16 @@ export function Step1Form() {
     if (d.tagline) setTagline(d.tagline);
     if (d.category) setCategory(d.category);
     if (d.external_url) setExternalUrl(d.external_url);
+    setAutoFilled(d.auto_filled_fields ?? []);
   }, []);
+
+  function clearAutoFill(field: string) {
+    setAutoFilled((prev) => {
+      const next = prev.filter((f) => f !== field);
+      saveDraft({ auto_filled_fields: next });
+      return next;
+    });
+  }
 
   function validate(): boolean {
     const e: Record<string, string> = {};
@@ -75,34 +89,48 @@ export function Step1Form() {
       </div>
 
       <h1 className="mb-1.5 text-[22px] font-extrabold tracking-tight">어떤 걸 만들었나요?</h1>
-      <p className="mb-6 text-[13px] text-ink-60">제품의 핵심 정보를 입력해주세요.</p>
+      <p className="mb-6 text-[13px] text-ink-60">제품의 핵심 정보를 확인·수정해주세요.</p>
 
       {/* 제품명 */}
-      <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
-        제품명 <span className="text-accent">*</span>
+      <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
+        제품명 <span className="text-accent ml-0.5">*</span>
+        {autoFilled.includes("name") && <AiBadge />}
       </label>
       <input
         type="text"
         value={name}
         maxLength={40}
-        onChange={(e) => { setName(e.target.value); setErrors((p) => ({ ...p, name: "" })); }}
+        onChange={(e) => {
+          setName(e.target.value);
+          setErrors((p) => ({ ...p, name: "" }));
+          clearAutoFill("name");
+        }}
         placeholder="언더커버"
-        className={`mb-1 h-11 w-full rounded-[8px] border bg-paper px-3 text-[13px] outline-none focus:border-ink ${errors.name ? "border-accent" : "border-ink-10"}`}
+        className={`mb-1 h-11 w-full rounded-[8px] border bg-paper px-3 text-[13px] outline-none focus:border-ink ${
+          autoFilled.includes("name") ? "border-amber-300 bg-amber-50/40" : errors.name ? "border-accent" : "border-ink-10"
+        }`}
       />
       {errors.name && <p className="mb-1 text-[11px] text-accent">{errors.name}</p>}
       <p className="mb-4 text-right text-[11px] text-ink-40">{name.length}/40</p>
 
       {/* 한 줄 소개 */}
-      <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
-        한 줄 소개 <span className="text-accent">*</span>
+      <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
+        한 줄 소개 <span className="text-accent ml-0.5">*</span>
+        {autoFilled.includes("tagline") && <AiBadge />}
       </label>
       <textarea
         value={tagline}
         maxLength={150}
-        onChange={(e) => { setTagline(e.target.value); setErrors((p) => ({ ...p, tagline: "" })); }}
+        onChange={(e) => {
+          setTagline(e.target.value);
+          setErrors((p) => ({ ...p, tagline: "" }));
+          clearAutoFill("tagline");
+        }}
         placeholder="프랜차이즈 점주를 위한 익명 커뮤니티와 매출 벤치마킹 서비스"
         rows={3}
-        className={`mb-1 w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${errors.tagline ? "border-accent" : "border-ink-10"}`}
+        className={`mb-1 w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
+          autoFilled.includes("tagline") ? "border-amber-300 bg-amber-50/40" : errors.tagline ? "border-accent" : "border-ink-10"
+        }`}
       />
       {errors.tagline && <p className="mb-1 text-[11px] text-accent">{errors.tagline}</p>}
       <p className="mb-4 text-right text-[11px] text-ink-40">{tagline.length}/150</p>
@@ -120,15 +148,16 @@ export function Step1Form() {
       />
 
       {/* 카테고리 */}
-      <label className="mb-2 block text-[12px] font-semibold text-ink-60">
-        카테고리 <span className="text-accent">*</span>
+      <label className="mb-2 flex items-center text-[12px] font-semibold text-ink-60">
+        카테고리 <span className="text-accent ml-0.5">*</span>
+        {autoFilled.includes("category") && <AiBadge />}
       </label>
       <div className="mb-6 flex flex-wrap gap-2">
         {CATEGORIES.map((c) => (
           <button
             key={c.value}
             type="button"
-            onClick={() => setCategory(c.value)}
+            onClick={() => { setCategory(c.value); clearAutoFill("category"); }}
             className={`rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-colors ${
               category === c.value
                 ? "border-ink bg-ink text-cream"

@@ -4,12 +4,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loadDraft, saveDraft } from "../_components/types";
 
+function AiBadge() {
+  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추측</span>;
+}
+
 export function Step2Form() {
   const router = useRouter();
   const [audience, setAudience] = useState("");
   const [problem, setProblem] = useState("");
   const [solution, setSolution] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [autoFilled, setAutoFilled] = useState<string[]>([]);
 
   useEffect(() => {
     const d = loadDraft();
@@ -17,7 +22,16 @@ export function Step2Form() {
     if (d.target_audience) setAudience(d.target_audience);
     if (d.problem_statement) setProblem(d.problem_statement);
     if (d.solution_approach) setSolution(d.solution_approach);
+    setAutoFilled(d.auto_filled_fields ?? []);
   }, [router]);
+
+  function clearAutoFill(field: string) {
+    setAutoFilled((prev) => {
+      const next = prev.filter((f) => f !== field);
+      saveDraft({ auto_filled_fields: next });
+      return next;
+    });
+  }
 
   function validate(): boolean {
     const e: Record<string, string> = {};
@@ -43,19 +57,16 @@ export function Step2Form() {
     problem.trim().length >= 5 &&
     solution.trim().length >= 5;
 
-  const fieldClass = (key: string) =>
+  const fieldClass = (key: string, aiField: string) =>
     `w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
-      errors[key] ? "border-accent" : "border-ink-10"
+      autoFilled.includes(aiField) ? "border-amber-300 bg-amber-50/40" : errors[key] ? "border-accent" : "border-ink-10"
     }`;
 
   return (
     <div className="flex flex-1 flex-col">
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
-        <button
-          onClick={() => router.push("/submit/step1")}
-          className="text-sm font-semibold text-ink-60 hover:text-ink"
-        >
+        <button onClick={() => router.push("/submit/step1")} className="text-sm font-semibold text-ink-60 hover:text-ink">
           ← 이전
         </button>
         <span className="text-[15px] font-extrabold tracking-tight">
@@ -76,50 +87,53 @@ export function Step2Form() {
 
       <h1 className="mb-1.5 text-[22px] font-extrabold tracking-tight">어떤 가치를 주나요?</h1>
       <p className="mb-6 text-[13px] text-ink-60">
-        피드백을 주는 메이커들이 제품을 정확히 이해할 수 있도록 3가지를 구체적으로 설명해주세요.
+        피드백을 주는 메이커들이 제품을 정확히 이해할 수 있도록 확인·수정해주세요.
       </p>
 
       {/* 누구를 위한 */}
-      <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
-        누구를 위한 서비스인가요? <span className="text-accent">*</span>
+      <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
+        누구를 위한 서비스인가요? <span className="text-accent ml-0.5">*</span>
+        {autoFilled.includes("target_audience") && <AiBadge />}
       </label>
       <textarea
         value={audience}
         maxLength={200}
-        onChange={(e) => { setAudience(e.target.value); setErrors((p) => ({ ...p, audience: "" })); }}
+        onChange={(e) => { setAudience(e.target.value); setErrors((p) => ({ ...p, audience: "" })); clearAutoFill("target_audience"); }}
         placeholder="혼자 사이드프로젝트를 만드는 인디 메이커. 첫 제품 공개 전 피드백이 필요한데 어디 물을 곳 없는 사람"
         rows={3}
-        className={fieldClass("audience")}
+        className={fieldClass("audience", "target_audience")}
       />
       {errors.audience && <p className="mb-1 text-[11px] text-accent">{errors.audience}</p>}
       <p className="mb-4 text-right text-[11px] text-ink-40">{audience.length}/200</p>
 
       {/* 어떤 문제 */}
-      <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
-        어떤 문제를 해결하나요? <span className="text-accent">*</span>
+      <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
+        어떤 문제를 해결하나요? <span className="text-accent ml-0.5">*</span>
+        {autoFilled.includes("problem_statement") && <AiBadge />}
       </label>
       <textarea
         value={problem}
         maxLength={200}
-        onChange={(e) => { setProblem(e.target.value); setErrors((p) => ({ ...p, problem: "" })); }}
+        onChange={(e) => { setProblem(e.target.value); setErrors((p) => ({ ...p, problem: "" })); clearAutoFill("problem_statement"); }}
         placeholder="공개하면 아이디어 도용당할까 두려움, 어디서 피드백을 받을지 모름, 무엇을 개선해야 할지 판단이 안 섬"
         rows={3}
-        className={fieldClass("problem")}
+        className={fieldClass("problem", "problem_statement")}
       />
       {errors.problem && <p className="mb-1 text-[11px] text-accent">{errors.problem}</p>}
       <p className="mb-4 text-right text-[11px] text-ink-40">{problem.length}/200</p>
 
       {/* 어떻게 해결 */}
-      <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
-        어떻게 해결하나요? <span className="text-accent">*</span>
+      <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
+        어떻게 해결하나요? <span className="text-accent ml-0.5">*</span>
+        {autoFilled.includes("solution_approach") && <AiBadge />}
       </label>
       <textarea
         value={solution}
         maxLength={200}
-        onChange={(e) => { setSolution(e.target.value); setErrors((p) => ({ ...p, solution: "" })); }}
+        onChange={(e) => { setSolution(e.target.value); setErrors((p) => ({ ...p, solution: "" })); clearAutoFill("solution_approach"); }}
         placeholder="공개 즉시 등록 증명서 발급해 아이디어 선점 시점 인정. 메이커들의 구조화된 피드백으로 개선 방향 제공"
         rows={3}
-        className={fieldClass("solution")}
+        className={fieldClass("solution", "solution_approach")}
       />
       {errors.solution && <p className="mb-1 text-[11px] text-accent">{errors.solution}</p>}
       <p className="mb-4 text-right text-[11px] text-ink-40">{solution.length}/200</p>

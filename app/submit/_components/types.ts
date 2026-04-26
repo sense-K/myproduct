@@ -33,6 +33,8 @@ export type SubmitDraft = {
   pricing_model: PricingModel | null;
   feedback_categories: FeedbackCategory[];
   maker_note: string;
+  // AI 자동 채움 메타데이터
+  auto_filled_fields?: string[];
 };
 
 export const DRAFT_KEY = "mp_submit";
