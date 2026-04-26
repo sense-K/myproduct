@@ -13,7 +13,7 @@ export function NeedFeedbackSection({ items }: Props) {
       <div className="flex items-baseline justify-between">
         <h2 className="text-[16px] font-extrabold tracking-tight">피드백 기다리는 제품</h2>
         <Link href="/feed?sort=need_feedback" className="text-[11px] text-ink-60 hover:text-ink">
-          더 →
+          더보기 →
         </Link>
       </div>
       <p className="mt-1 text-[12px] text-ink-60">

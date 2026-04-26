@@ -14,7 +14,7 @@ export function HScrollSection({ products }: Props) {
         <div className="flex items-baseline justify-between">
           <h2 className="text-[16px] font-extrabold tracking-tight">이번 주 피드백 많이 받은</h2>
           <Link href="/feed?sort=feedback" className="text-[11px] text-ink-60 hover:text-ink">
-            더 →
+            더보기 →
           </Link>
         </div>
         <p className="mt-1 text-[12px] text-ink-60">메이커들이 자주 들여다본 작업물</p>
