@@ -6,6 +6,7 @@ export type FeedProduct = {
   feedback_count: number;
   view_count: number;
   hasCertificate: boolean;
+  thumbnailUrl: string | null;
   gradientFrom: string;
   gradientTo: string;
   label: string;
@@ -19,6 +20,7 @@ export type HomeProduct = {
   category: string;
   feedbackCount: number;
   hasCertificate: boolean;
+  thumbnailUrl: string | null;
   gradientFrom: string;
   gradientTo: string;
   label: string;

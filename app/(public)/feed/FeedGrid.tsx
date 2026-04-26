@@ -15,13 +15,15 @@ function FeedCard({ p }: { p: FeedProduct }) {
     >
       <div
         className="flex aspect-[4/3] items-center justify-center p-2 text-center text-xs font-bold text-white sm:aspect-video"
-        style={{
-          background: `linear-gradient(135deg, ${p.gradientFrom} 0%, ${p.gradientTo} 100%)`,
-        }}
+        style={
+          p.thumbnailUrl
+            ? { backgroundImage: `url(${p.thumbnailUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : { background: `linear-gradient(135deg, ${p.gradientFrom} 0%, ${p.gradientTo} 100%)` }
+        }
         role="img"
         aria-label={`${p.name} 썸네일`}
       >
-        {p.label}
+        {!p.thumbnailUrl && p.label}
       </div>
       <div className="p-3">
         <p className="text-[13px] font-bold leading-snug">{p.name}</p>

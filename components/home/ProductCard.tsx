@@ -7,7 +7,7 @@ type Props = {
 };
 
 export function ProductCard({ product, size = "sm" }: Props) {
-  const { slug, name, tagline, feedbackCount, hasCertificate, gradientFrom, gradientTo, label } =
+  const { slug, name, tagline, feedbackCount, hasCertificate, thumbnailUrl, gradientFrom, gradientTo, label } =
     product;
 
   if (size === "lg") {
@@ -18,10 +18,14 @@ export function ProductCard({ product, size = "sm" }: Props) {
       >
         <div
           className="flex aspect-video items-center justify-center p-2 text-center text-xs font-bold text-white"
-          style={{ background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)` }}
+          style={
+            thumbnailUrl
+              ? { backgroundImage: `url(${thumbnailUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+              : { background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)` }
+          }
           aria-label={`${name} 썸네일`}
         >
-          {label}
+          {!thumbnailUrl && label}
         </div>
         <div className="p-3">
           <p className="text-[13px] font-bold leading-snug">{name}</p>
@@ -50,10 +54,14 @@ export function ProductCard({ product, size = "sm" }: Props) {
     >
       <div
         className="flex aspect-[4/3] items-center justify-center p-2 text-center text-xs font-bold text-white"
-        style={{ background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)` }}
+        style={
+          thumbnailUrl
+            ? { backgroundImage: `url(${thumbnailUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : { background: `linear-gradient(135deg, ${gradientFrom} 0%, ${gradientTo} 100%)` }
+        }
         aria-label={`${name} 썸네일`}
       >
-        {label}
+        {!thumbnailUrl && label}
       </div>
       <div className="p-[10px]">
         <p className="text-[13px] font-bold leading-snug">{name}</p>

@@ -4,6 +4,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { buildOrganizationSchema } from "@/lib/seo/json-ld";
 import { SITE_URL, SITE_NAME, OG_IMAGE_DEFAULT } from "@/lib/seo/config";
 import { HeroSection } from "@/components/home/HeroSection";
+import { getThumbnailUrl } from "@/lib/product/thumbnail";
 import { CategorySection } from "@/components/home/CategorySection";
 import { HScrollSection } from "@/components/home/HScrollSection";
 import { NeedFeedbackSection } from "@/components/home/NeedFeedbackSection";
@@ -61,7 +62,7 @@ async function fetchHomeData(): Promise<{
       supabase
         .from("products")
         .select(
-          "slug, name, tagline, category, feedback_count, certificates(registration_number)",
+          "slug, name, tagline, category, feedback_count, thumbnail_url, og_image_url, certificates(registration_number)",
         )
         .eq("status", "public")
         .order("created_at", { ascending: false })
@@ -69,7 +70,7 @@ async function fetchHomeData(): Promise<{
       supabase
         .from("products")
         .select(
-          "slug, name, tagline, category, feedback_count, certificates(registration_number)",
+          "slug, name, tagline, category, feedback_count, thumbnail_url, og_image_url, certificates(registration_number)",
         )
         .eq("status", "public")
         .order("feedback_count", { ascending: false })
@@ -90,6 +91,7 @@ async function fetchHomeData(): Promise<{
       category: p.category,
       feedbackCount: p.feedback_count,
       hasCertificate: (p.certificates?.length ?? 0) > 0,
+      thumbnailUrl: getThumbnailUrl({ thumbnail_url: p.thumbnail_url, og_image_url: p.og_image_url }),
       gradientFrom: "#2D5F3F",
       gradientTo: "#3d7a52",
       label: p.name.slice(0, 6),
