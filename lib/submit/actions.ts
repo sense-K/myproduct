@@ -80,20 +80,8 @@ function extractMeta(html: string) {
   return { title, desc, image };
 }
 
-export async function aiFillFromUrl(_url: string): Promise<AiFillResult> {
-  // ── AI 자동 채움 일시 비활성화 (Anthropic 결제 이슈) ──────────────────────
-  // 재활성화 방법:
-  //   1. 아래 return 문 제거
-  //   2. 함수 인자 _url → url 으로 복구
-  //   3. app/submit/url/page.tsx 상단 redirect("/submit/manual") 제거
-  //   4. app/submit/intro/page.tsx redirect("/submit/manual") → redirect("/submit/url") 복구
-  return {
-    ok: false,
-    error: "AI 자동 채움이 준비 중입니다. 직접 입력으로 시작해주세요.",
-  };
-  // ── 이하 원본 코드 (재활성화 시 복구) ────────────────────────────────────
-  /*
-  const normalized = _url.startsWith("http") ? _url : `https://${_url}`;
+export async function aiFillFromUrl(url: string): Promise<AiFillResult> {
+  const normalized = url.startsWith("http") ? url : `https://${url}`;
 
   // SSRF 차단
   if (!isValidPublicUrl(normalized)) {
@@ -190,7 +178,6 @@ export async function aiFillFromUrl(_url: string): Promise<AiFillResult> {
     console.error("[aiFillFromUrl] error:", msg);
     return { ok: false, error: msg };
   }
-  */
 }
 
 // ─── 제품 등록 트랜잭션 ───────────────────────────────────────────────────────
