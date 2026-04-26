@@ -75,7 +75,10 @@ export default async function MyProductsPage() {
                 {/* 액션 버튼 */}
                 <div className="mt-3 flex items-center gap-2 border-t border-ink-10 pt-3">
                   <Link href={`/p/${p.slug}`} className="flex-1 rounded-[8px] border border-ink-10 py-1.5 text-center text-[12px] font-semibold text-ink-60 hover:border-ink hover:text-ink">
-                    페이지 보기
+                    보기
+                  </Link>
+                  <Link href={`/me/products/${p.slug}/edit`} className="flex-1 rounded-[8px] border border-ink-10 py-1.5 text-center text-[12px] font-semibold text-ink-60 hover:border-ink hover:text-ink">
+                    편집
                   </Link>
                   {regNum && (
                     <a href={`/api/cert/${regNum}/view`} target="_blank" rel="noopener" className="flex-1 rounded-[8px] border border-ink-10 py-1.5 text-center text-[12px] font-semibold text-ink-60 hover:border-ink hover:text-ink">
