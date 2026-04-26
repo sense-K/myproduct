@@ -15,6 +15,7 @@ export function Step2Form() {
   const [solution, setSolution] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [autoFilled, setAutoFilled] = useState<string[]>([]);
+  const [isUrlPath, setIsUrlPath] = useState(false);
 
   useEffect(() => {
     const d = loadDraft();
@@ -23,6 +24,8 @@ export function Step2Form() {
     if (d.problem_statement) setProblem(d.problem_statement);
     if (d.solution_approach) setSolution(d.solution_approach);
     setAutoFilled(d.auto_filled_fields ?? []);
+    // URL 경로(AI 채움)로 온 경우 3개 필드를 선택으로 처리
+    setIsUrlPath(d.submission_type === "url");
   }, [router]);
 
   function clearAutoFill(field: string) {
@@ -34,6 +37,8 @@ export function Step2Form() {
   }
 
   function validate(): boolean {
+    // URL 경로(AI 채움)면 빈 필드 허용 — 메이커가 검수 중 스킵 가능
+    if (isUrlPath) return true;
     const e: Record<string, string> = {};
     if (audience.trim().length < 5) e.audience = "10자 이상 입력해주세요";
     if (problem.trim().length < 5) e.problem = "10자 이상 입력해주세요";
@@ -52,10 +57,12 @@ export function Step2Form() {
     router.push("/submit/step3");
   }
 
-  const canProceed =
+  // URL 경로면 빈 필드도 진행 가능
+  const canProceed = isUrlPath || (
     audience.trim().length >= 5 &&
     problem.trim().length >= 5 &&
-    solution.trim().length >= 5;
+    solution.trim().length >= 5
+  );
 
   const fieldClass = (key: string, aiField: string) =>
     `w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
@@ -87,12 +94,15 @@ export function Step2Form() {
 
       <h1 className="mb-1.5 text-[22px] font-extrabold tracking-tight">어떤 가치를 주나요?</h1>
       <p className="mb-6 text-[13px] text-ink-60">
-        피드백을 주는 메이커들이 제품을 정확히 이해할 수 있도록 확인·수정해주세요.
+        {isUrlPath
+          ? "AI가 채운 내용을 확인·수정하거나, 비어있는 항목을 직접 작성해주세요. 모두 선택 사항이에요."
+          : "피드백을 주는 메이커들이 제품을 정확히 이해할 수 있도록 3가지를 구체적으로 설명해주세요."}
       </p>
 
       {/* 누구를 위한 */}
       <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
-        누구를 위한 서비스인가요? <span className="text-accent ml-0.5">*</span>
+        누구를 위한 서비스인가요?
+        {!isUrlPath && <span className="text-accent ml-0.5">*</span>}
         {autoFilled.includes("target_audience") && <AiBadge />}
       </label>
       <textarea
@@ -108,7 +118,8 @@ export function Step2Form() {
 
       {/* 어떤 문제 */}
       <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
-        어떤 문제를 해결하나요? <span className="text-accent ml-0.5">*</span>
+        어떤 문제를 해결하나요?
+        {!isUrlPath && <span className="text-accent ml-0.5">*</span>}
         {autoFilled.includes("problem_statement") && <AiBadge />}
       </label>
       <textarea
@@ -124,7 +135,8 @@ export function Step2Form() {
 
       {/* 어떻게 해결 */}
       <label className="mb-1.5 flex items-center text-[12px] font-semibold text-ink-60">
-        어떻게 해결하나요? <span className="text-accent ml-0.5">*</span>
+        어떻게 해결하나요?
+        {!isUrlPath && <span className="text-accent ml-0.5">*</span>}
         {autoFilled.includes("solution_approach") && <AiBadge />}
       </label>
       <textarea
