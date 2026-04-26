@@ -27,7 +27,10 @@ export function ProductActions({ productId, productName, isPrivate }: Props) {
     if (confirmText !== "삭제") return;
     startTransition(async () => {
       const result = await deleteProduct(productId);
-      if (!result.ok) setError(result.error ?? "오류");
+      if (!result.ok) {
+        setError(result.error ?? "삭제에 실패했어요");
+        return; // 모달 유지 — 에러 메시지 보여줌
+      }
       setModal("none");
       setConfirmText("");
     });

@@ -110,6 +110,11 @@ export async function deleteProduct(productId: string) {
       ).data?.map((c) => c.id) ?? [],
     );
 
+  // credits / notifications: related_product_id NULL로 (이력 보존, FK 제약 해제)
+  // ON DELETE 미지정 컬럼이라 products DELETE 전에 반드시 해제해야 함
+  await admin.from("credits").update({ related_product_id: null }).eq("related_product_id", productId);
+  await admin.from("notifications").update({ related_product_id: null }).eq("related_product_id", productId);
+
   // certificates는 snapshot 보존 (ON DELETE SET NULL)
   // products hard delete (cascade: versions, feedbacks, views, clicks)
   const { error } = await admin.from("products").delete().eq("id", productId);
