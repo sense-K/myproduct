@@ -10,7 +10,7 @@ export function Step1Form() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
-  const [category, setCategory] = useState<Category>("saas");
+  const [category, setCategory] = useState<Category>("etc");
   const [externalUrl, setExternalUrl] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 

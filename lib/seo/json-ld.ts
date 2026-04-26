@@ -51,11 +51,14 @@ type ProductSchemaInput = {
 };
 
 const CATEGORY_LABEL: Record<string, string> = {
-  saas: "WebApplication",
-  mobile_app: "MobileApplication",
-  webtoon_creative: "Game",
-  quirky: "WebApplication",
-  etc: "WebApplication",
+  dev_tools:         "WebApplication",
+  productivity:      "WebApplication",
+  ai_data:           "WebApplication",
+  community_content: "WebApplication",
+  learning:          "WebApplication",
+  lifestyle:         "WebApplication",
+  finance_commerce:  "WebApplication",
+  etc:               "WebApplication",
 };
 
 export function buildProductSchema({

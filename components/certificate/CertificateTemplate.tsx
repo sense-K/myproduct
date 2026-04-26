@@ -15,8 +15,10 @@ export type CertData = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  saas: "SaaS", mobile_app: "모바일앱", webtoon_creative: "웹툰·창작",
-  quirky: "엉뚱함", etc: "기타",
+  dev_tools: "개발자 도구", productivity: "생산성 / 업무",
+  ai_data: "AI / 데이터", community_content: "커뮤니티 / 콘텐츠",
+  learning: "학습 / 교육", lifestyle: "건강 / 라이프스타일",
+  finance_commerce: "금융 / 커머스", etc: "기타",
 };
 const CAREER_LABELS: Record<string, string> = {
   pre_founder: "예비 창업자", under_1y: "1년 미만",

@@ -10,7 +10,7 @@ export function ManualForm() {
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
   const [externalUrl, setExternalUrl] = useState("");
-  const [category, setCategory] = useState<Category>("saas");
+  const [category, setCategory] = useState<Category>("etc");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function validate(): boolean {

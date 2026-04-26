@@ -12,11 +12,14 @@ export type CareerTag = (typeof CAREER_TAGS)[number]["value"];
 export const CAREER_TAG_VALUES = CAREER_TAGS.map((t) => t.value) as readonly CareerTag[];
 
 export const CATEGORIES = [
-  { value: "saas", label: "SaaS", description: "웹 기반 구독/서비스 제품" },
-  { value: "mobile_app", label: "모바일앱", description: "iOS/Android 앱" },
-  { value: "webtoon_creative", label: "웹툰·창작", description: "웹툰, 소설, 음악, 아트 등" },
-  { value: "quirky", label: "엉뚱함", description: "쓸모는 모르겠지만 재미있는 것" },
-  { value: "etc", label: "기타", description: "위 분류에 안 맞는 것" },
+  { value: "dev_tools",         label: "개발자 도구" },
+  { value: "productivity",      label: "생산성 / 업무" },
+  { value: "ai_data",           label: "AI / 데이터" },
+  { value: "community_content", label: "커뮤니티 / 콘텐츠" },
+  { value: "learning",          label: "학습 / 교육" },
+  { value: "lifestyle",         label: "건강 / 라이프스타일" },
+  { value: "finance_commerce",  label: "금융 / 커머스" },
+  { value: "etc",               label: "기타" },
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number]["value"];
