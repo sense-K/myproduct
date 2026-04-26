@@ -80,8 +80,12 @@ function extractMeta(html: string) {
   return { title, desc, image };
 }
 
-export async function aiFillFromUrl(url: string): Promise<AiFillResult> {
-  const normalized = url.startsWith("http") ? url : `https://${url}`;
+export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
+  const rawUrl = inputUrl.trim();
+  if (!rawUrl) return { ok: false, error: "URL을 입력해주세요" };
+
+  const normalized = rawUrl.includes("://") ? rawUrl : `https://${rawUrl}`;
+  try { new URL(normalized); } catch { return { ok: false, error: "올바른 URL 형식이 아니에요" }; }
 
   // SSRF 차단
   if (!isValidPublicUrl(normalized)) {
@@ -174,8 +178,18 @@ export async function aiFillFromUrl(url: string): Promise<AiFillResult> {
       thumbnailUrl: ogImage,
     };
   } catch (err) {
+    const isApiErr = err instanceof Anthropic.APIError;
+    console.error("[ai-fill-error]", {
+      inputUrl,
+      normalizedUrl: normalized,
+      status: isApiErr ? err.status : undefined,
+      bodyPreview: isApiErr
+        ? JSON.stringify(err.error)?.slice(0, 500)
+        : String(err).slice(0, 500),
+      hasApiKey: !!process.env.ANTHROPIC_API_KEY,
+      apiKeyLength: process.env.ANTHROPIC_API_KEY?.length,
+    });
     const msg = err instanceof Error ? err.message : "AI 채움 실패";
-    console.error("[aiFillFromUrl] error:", msg);
     return { ok: false, error: msg };
   }
 }
