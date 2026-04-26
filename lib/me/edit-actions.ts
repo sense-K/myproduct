@@ -15,6 +15,7 @@ export type UpdateInput = {
   problem_statement: string;
   solution_approach: string;
   thumbnail_url: string | null;
+  og_image_url?: string | null;
   screenshot_urls: string[];
   demo_video_url: string | null;
   differentiator: string | null;
@@ -59,6 +60,7 @@ export async function updateProduct(
       problem_statement: input.problem_statement || null,
       solution_approach: input.solution_approach || null,
       thumbnail_url: input.thumbnail_url,
+      og_image_url: input.og_image_url ?? undefined,
       screenshot_urls: input.screenshot_urls.length ? input.screenshot_urls : null,
       demo_video_url: input.demo_video_url,
       differentiator: input.differentiator || null,

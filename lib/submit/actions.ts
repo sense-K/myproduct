@@ -247,6 +247,7 @@ export type RegisterInput = {
   external_url: string | null;
   submission_type: "url" | "manual";
   thumbnail_url: string | null;
+  og_image_url?: string | null;
   // v2 fields (all nullable — DB allows existing rows without them)
   target_audience?: string;
   problem_statement?: string;
@@ -315,6 +316,7 @@ export async function registerProduct(input: RegisterInput): Promise<RegisterRes
       maker_quote: input.maker_note || input.maker_quote || null,
       category: input.category,
       thumbnail_url: input.thumbnail_url,
+      og_image_url: input.og_image_url || null,
       external_url: input.external_url,
       submission_type: input.submission_type,
       status: "public",

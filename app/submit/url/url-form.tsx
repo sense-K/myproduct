@@ -71,7 +71,9 @@ export function UrlForm() {
         name:               result.name,
         tagline:            result.tagline,
         category:           result.category,
-        thumbnail_url:      result.thumbnailUrl,
+        og_image_url:       result.thumbnailUrl,   // AI 추출 OG — 직접 업로드와 구분
+        thumbnail_url:      null,                  // 직접 업로드 전까지 null
+        thumbnail_path:     null,
         ai_failed:          false,
         target_audience:    result.target_audience,
         problem_statement:  result.problem_statement,

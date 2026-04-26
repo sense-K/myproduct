@@ -25,7 +25,10 @@ export type SubmitDraft = {
   problem_statement: string;
   solution_approach: string;
   // Step 3 — 시각 자료
+  og_image_url?: string | null;      // AI 추출 OG 이미지 (fallback)
+  thumbnail_path?: string | null;    // Storage 경로 (삭제·교체용)
   screenshot_urls: string[];
+  screenshot_paths?: string[];       // Storage 경로 배열 (삭제용)
   demo_video_url: string | null;
   // Step 4 — 선택 항목
   differentiator: string;
@@ -35,6 +38,8 @@ export type SubmitDraft = {
   maker_note: string;
   // AI 자동 채움 메타데이터
   auto_filled_fields?: string[];
+  // 이미지 업로드 임시 ID (등록 전 Storage 경로용)
+  upload_id?: string;
 };
 
 export const DRAFT_KEY = "mp_submit";

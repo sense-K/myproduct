@@ -56,6 +56,7 @@ export function Step5Form() {
         external_url: draft.external_url ?? null,
         submission_type: draft.submission_type ?? "manual",
         thumbnail_url: draft.thumbnail_url ?? null,
+        og_image_url: draft.og_image_url ?? null,
         target_audience: draft.target_audience ?? "",
         problem_statement: draft.problem_statement ?? "",
         solution_approach: draft.solution_approach ?? "",
@@ -120,6 +121,21 @@ export function Step5Form() {
 
       <h1 className="mb-1.5 text-[22px] font-extrabold tracking-tight">이렇게 올릴게요</h1>
       <p className="mb-4 text-[13px] text-ink-60">내용을 확인하고 수정이 필요하면 수정 버튼을 눌러주세요.</p>
+
+      {/* 썸네일 미리보기 */}
+      {(draft.thumbnail_url || draft.og_image_url) && (
+        <div className="mb-4 overflow-hidden rounded-[14px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={(draft.thumbnail_url || draft.og_image_url)!}
+            alt="썸네일"
+            className="aspect-video w-full object-cover"
+          />
+          {!draft.thumbnail_url && draft.og_image_url && (
+            <p className="mt-1 text-center text-[10px] text-amber-600">✨ OG 이미지 (직접 업로드로 교체 가능)</p>
+          )}
+        </div>
+      )}
 
       {/* 미리보기 카드 */}
       <div className="rounded-[14px] border border-ink-10 bg-paper p-4">

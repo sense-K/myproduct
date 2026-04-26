@@ -14,6 +14,9 @@ import {
 } from "@/app/submit/_components/types";
 import { updateProduct } from "@/lib/me/edit-actions";
 import { SITE_NAME } from "@/lib/seo/config";
+import { ImageUpload } from "@/components/upload/ImageUpload";
+import { ScreenshotGallery } from "@/components/upload/ScreenshotGallery";
+import { extractStoragePath } from "@/lib/product/thumbnail";
 
 // ─── 타입 ──────────────────────────────────────────────────────────────────────
 
@@ -24,6 +27,7 @@ export type EditableProduct = {
   category: string;
   external_url: string | null;
   thumbnail_url: string | null;
+  og_image_url?: string | null;
   target_audience: string | null;
   problem_statement: string | null;
   solution_approach: string | null;
@@ -51,6 +55,7 @@ type Draft = {
   maker_note: string;
   thumbnail_url: string | null;
   screenshot_urls: string[];
+  screenshot_paths: string[];
   demo_video_url: string;
 };
 
@@ -90,6 +95,7 @@ function productToDraft(p: EditableProduct): Draft {
     maker_note: p.maker_note ?? "",
     thumbnail_url: p.thumbnail_url,
     screenshot_urls: p.screenshot_urls ?? [],
+    screenshot_paths: (p.screenshot_urls ?? []).map(u => extractStoragePath(u) ?? ""),
     demo_video_url: p.demo_video_url ?? "",
   };
 }
@@ -399,40 +405,33 @@ export function EditForm({ product }: { product: EditableProduct }) {
           </h1>
           <p className="mb-6 text-[13px] text-ink-60">모두 선택 사항입니다.</p>
 
-          {/* 썸네일 — 이미지 업로드 미구현 (B 작업 이후 연결) */}
+          {/* 썸네일 */}
           <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
             대표 이미지{" "}
-            <span className="text-ink-40">(선택, JPG·PNG·WEBP · 최대 2MB)</span>
+            <span className="text-ink-40">(선택, JPG·PNG·WEBP · 최대 5MB)</span>
           </label>
-          <div className="mb-6 flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-[14px] border-2 border-dashed border-ink-10 bg-paper text-center">
-            {draft.thumbnail_url ? (
-              <img
-                src={draft.thumbnail_url}
-                alt="thumbnail"
-                className="h-full w-full rounded-[12px] object-cover"
-              />
-            ) : (
-              <>
-                <span className="text-2xl">🖼️</span>
-                <p className="text-[13px] font-semibold text-ink-60">이미지 업로드</p>
-                <p className="text-[11px] text-ink-40">업로드 기능은 곧 활성화됩니다</p>
-              </>
-            )}
+          <div className="mb-6">
+            <ImageUpload
+              kind="thumbnail"
+              uploadId={product.slug}
+              currentUrl={draft.thumbnail_url}
+              currentPath={draft.thumbnail_url ? extractStoragePath(draft.thumbnail_url) : null}
+              ogImageUrl={product.og_image_url ?? null}
+              onChange={(url, _path) => update({ thumbnail_url: url })}
+            />
           </div>
 
-          {/* 스크린샷 — placeholder */}
+          {/* 스크린샷 */}
           <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
             스크린샷 <span className="text-ink-40">(선택, 최대 5장 · 각 5MB)</span>
           </label>
-          <div className="mb-6 grid grid-cols-3 gap-2">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <div
-                key={n}
-                className="flex aspect-video items-center justify-center rounded-[8px] border-2 border-dashed border-ink-10 text-ink-20"
-              >
-                <span className="text-[20px]">+</span>
-              </div>
-            ))}
+          <div className="mb-6">
+            <ScreenshotGallery
+              uploadId={product.slug}
+              urls={draft.screenshot_urls}
+              paths={draft.screenshot_paths}
+              onChange={(urls, paths) => update({ screenshot_urls: urls, screenshot_paths: paths })}
+            />
           </div>
 
           <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">

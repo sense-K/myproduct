@@ -49,7 +49,7 @@ async function fetchProduct(slug: string) {
       .from("products")
       .select(`
         id, slug, name, tagline, maker_quote, category,
-        thumbnail_url, external_url, view_count, click_count,
+        thumbnail_url, og_image_url, external_url, view_count, click_count,
         feedback_count, created_at, updated_at, status, owner_id,
         users!inner ( nickname, career_tag ),
         product_versions ( id, version_label, change_note, version_number, is_initial, created_at ),
@@ -122,6 +122,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     maker_quote: p.maker_quote,
     category: p.category,
     thumbnail_url: p.thumbnail_url ?? null,
+    og_image_url: p.og_image_url ?? null,
     external_url: p.external_url ?? null,
     view_count: p.view_count ?? 0,
     click_count: p.click_count ?? 0,

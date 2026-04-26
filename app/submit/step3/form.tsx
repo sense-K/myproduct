@@ -3,35 +3,59 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loadDraft, saveDraft } from "../_components/types";
+import { ImageUpload } from "@/components/upload/ImageUpload";
+import { ScreenshotGallery } from "@/components/upload/ScreenshotGallery";
 
 export function Step3Form() {
   const router = useRouter();
+  const [uploadId, setUploadId] = useState<string>("");
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [thumbnailPath, setThumbnailPath] = useState<string | null>(null);
+  const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
+  const [screenshotUrls, setScreenshotUrls] = useState<string[]>([]);
+  const [screenshotPaths, setScreenshotPaths] = useState<string[]>([]);
   const [demoUrl, setDemoUrl] = useState("");
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   useEffect(() => {
     const d = loadDraft();
     if (!d.name) { router.replace("/submit/step1"); return; }
+
+    // upload_id 없으면 신규 생성 (Storage 경로용)
+    const id = d.upload_id ?? crypto.randomUUID();
+    setUploadId(id);
+    if (!d.upload_id) saveDraft({ upload_id: id });
+
+    setThumbnailUrl(d.thumbnail_url ?? null);
+    setThumbnailPath(d.thumbnail_path ?? null);
+    setOgImageUrl(d.og_image_url ?? null);
+    setScreenshotUrls(d.screenshot_urls ?? []);
+    setScreenshotPaths(d.screenshot_paths ?? []);
     if (d.demo_video_url) setDemoUrl(d.demo_video_url);
-    if (d.thumbnail_url) setThumbnailPreview(d.thumbnail_url);
   }, [router]);
+
+  function handleThumbnailChange(url: string | null, path: string | null) {
+    setThumbnailUrl(url);
+    setThumbnailPath(path);
+    saveDraft({ thumbnail_url: url, thumbnail_path: path });
+  }
+
+  function handleScreenshotsChange(urls: string[], paths: string[]) {
+    setScreenshotUrls(urls);
+    setScreenshotPaths(paths);
+    saveDraft({ screenshot_urls: urls, screenshot_paths: paths });
+  }
 
   function handleNext() {
     const trimmed = demoUrl.trim();
-    const normalizedUrl = trimmed
-      ? trimmed.includes("://") ? trimmed : `https://${trimmed}`
-      : null;
     saveDraft({
-      demo_video_url: normalizedUrl,
-      screenshot_urls: loadDraft().screenshot_urls ?? [],
+      demo_video_url: trimmed
+        ? trimmed.includes("://") ? trimmed : `https://${trimmed}`
+        : null,
     });
     router.push("/submit/step4");
   }
 
-  function handleSkip() {
-    saveDraft({ demo_video_url: null, screenshot_urls: [] });
-    router.push("/submit/step4");
-  }
+  if (!uploadId) return null; // useEffect 대기 중
 
   return (
     <div className="flex flex-1 flex-col">
@@ -60,37 +84,37 @@ export function Step3Form() {
       </div>
 
       <h1 className="mb-1.5 text-[22px] font-extrabold tracking-tight">제품 모습을 보여주세요</h1>
-      <p className="mb-6 text-[13px] text-ink-60">모두 선택 사항입니다. 나중에 추가도 가능해요.</p>
+      <p className="mb-6 text-[13px] text-ink-60">모두 선택 사항이에요. 나중에 추가도 가능해요.</p>
 
-      {/* 썸네일 업로드 (placeholder — 3단계 작업에서 연결) */}
+      {/* 썸네일 */}
       <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
-        대표 이미지 <span className="text-ink-40">(선택, JPG·PNG·WEBP · 최대 2MB)</span>
-      </label>
-      <div className="mb-6 flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-[14px] border-2 border-dashed border-ink-10 bg-paper text-center transition-colors hover:border-ink-40">
-        {thumbnailPreview ? (
-          <img src={thumbnailPreview} alt="thumbnail preview" className="h-full w-full rounded-[12px] object-cover" />
-        ) : (
-          <>
-            <span className="text-2xl">🖼️</span>
-            <p className="text-[13px] font-semibold text-ink-60">이미지 업로드</p>
-            <p className="text-[11px] text-ink-40">업로드 기능은 곧 활성화됩니다</p>
-          </>
+        대표 이미지 <span className="text-ink-40">(선택, JPG·PNG·WEBP · 최대 5MB)</span>
+        {ogImageUrl && !thumbnailUrl && (
+          <span className="ml-2 text-[10px] font-normal text-amber-600">✨ AI가 찾은 OG 이미지</span>
         )}
+      </label>
+      <div className="mb-6">
+        <ImageUpload
+          kind="thumbnail"
+          uploadId={uploadId}
+          currentUrl={thumbnailUrl}
+          currentPath={thumbnailPath}
+          ogImageUrl={ogImageUrl}
+          onChange={handleThumbnailChange}
+        />
       </div>
 
-      {/* 스크린샷 업로드 (placeholder) */}
+      {/* 스크린샷 */}
       <label className="mb-1.5 block text-[12px] font-semibold text-ink-60">
         스크린샷 <span className="text-ink-40">(선택, 최대 5장 · 각 5MB)</span>
       </label>
-      <div className="mb-6 grid grid-cols-3 gap-2">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <div
-            key={n}
-            className="flex aspect-video items-center justify-center rounded-[8px] border-2 border-dashed border-ink-10 text-ink-20"
-          >
-            <span className="text-[20px]">+</span>
-          </div>
-        ))}
+      <div className="mb-6">
+        <ScreenshotGallery
+          uploadId={uploadId}
+          urls={screenshotUrls}
+          paths={screenshotPaths}
+          onChange={handleScreenshotsChange}
+        />
       </div>
 
       {/* 데모 영상 URL */}
@@ -113,7 +137,7 @@ export function Step3Form() {
           다음 →
         </button>
         <button
-          onClick={handleSkip}
+          onClick={handleNext}
           className="flex h-[44px] items-center justify-center rounded-[14px] border border-ink-10 text-[13px] font-semibold text-ink-60 transition-colors hover:border-ink hover:text-ink"
         >
           건너뛰기 (나중에 추가)

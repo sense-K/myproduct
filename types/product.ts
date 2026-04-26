@@ -33,6 +33,7 @@ export type ProductPageData = {
   maker_quote: string | null;
   category: string;
   thumbnail_url: string | null;
+  og_image_url?: string | null;
   external_url: string | null;
   view_count: number;
   click_count: number;

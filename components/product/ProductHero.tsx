@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ExternalLinkButton } from "./ExternalLinkButton";
 import { CATEGORIES, CAREER_TAGS } from "@/lib/constants/user";
 import type { ProductPageData } from "@/types/product";
+import { getThumbnailUrl } from "@/lib/product/thumbnail";
 
 type Props = {
   product: ProductPageData;
@@ -39,6 +40,7 @@ export function ProductHero({ product, isOwner }: Props) {
     tagline,
     category,
     thumbnail_url,
+    og_image_url,
     external_url,
     feedback_count,
     certificate,
@@ -54,18 +56,17 @@ export function ProductHero({ product, isOwner }: Props) {
       {/* 썸네일 */}
       <div
         className="relative mb-4 flex aspect-video w-full items-center justify-center overflow-hidden rounded-[14px] bg-gradient-to-br from-[#2D5F3F] to-[#3d7a52] text-xl font-extrabold text-white"
-        style={
-          thumbnail_url
-            ? { backgroundImage: `url(${thumbnail_url})`, backgroundSize: "cover" }
-            : undefined
-        }
+        style={(() => {
+          const img = getThumbnailUrl({ thumbnail_url, og_image_url });
+          return img ? { backgroundImage: `url(${img})`, backgroundSize: "cover" } : undefined;
+        })()}
         role="img"
         aria-label={`${name} 썸네일`}
       >
         <span className="absolute left-2.5 top-2.5 rounded-full bg-white/95 px-2.5 py-0.5 text-[10px] font-bold text-ink">
           {getCategoryLabel(category)}
         </span>
-        {!thumbnail_url && displayUrl}
+        {!getThumbnailUrl({ thumbnail_url, og_image_url }) && displayUrl}
       </div>
 
       {/* 제목·태그라인 */}
