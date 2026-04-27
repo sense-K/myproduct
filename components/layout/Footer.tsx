@@ -25,7 +25,7 @@ export function Footer() {
         </nav>
         <div className="mt-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-ink-40">
-            © {new Date().getFullYear()} 마이프로덕트. 모든 권리 보유.
+            © {new Date().getFullYear()} MyProduct. All rights reserved.
           </p>
           <a
             href="mailto:zzabhm@gmail.com"
