@@ -19,6 +19,7 @@ const LOADING_STEPS = [
 ];
 
 type FillWarning = { filledCount: number; totalCount: number };
+type FillFailure = { error: string };
 
 export function UrlForm() {
   const [url, setUrl] = useState("");
@@ -26,14 +27,16 @@ export function UrlForm() {
   const [isPending, startTransition] = useTransition();
   const [loadingStep, setLoadingStep] = useState(0);
   const [warning, setWarning] = useState<FillWarning | null>(null);
+  const [failure, setFailure] = useState<FillFailure | null>(null);
   const router = useRouter();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function doFill() {
     const trimmed = url.trim();
     if (!trimmed) { setError("URL을 입력해주세요"); return; }
     setError(null);
+    setFailure(null);
     setWarning(null);
+    setLoadingStep(0);
 
     let step = 0;
     const interval = setInterval(() => {
@@ -48,19 +51,7 @@ export function UrlForm() {
       const normalized = trimmed.includes("://") ? trimmed : `https://${trimmed}`;
 
       if (!result.ok) {
-        // AI 실패 → 빈 draft로 수동 입력으로 이동
-        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
-          submission_type: "url",
-          external_url: normalized,
-          name: "", tagline: "", category: "etc",
-          thumbnail_url: null, ai_failed: true,
-          target_audience: "", problem_statement: "", solution_approach: "",
-          differentiator: "", product_stage: null, pricing_model: null,
-          feedback_categories: [], maker_note: "",
-          screenshot_urls: [], demo_video_url: null,
-          auto_filled_fields: [],
-        }));
-        router.push("/submit/step1");
+        setFailure({ error: result.error });
         return;
       }
 
@@ -71,8 +62,8 @@ export function UrlForm() {
         name:               result.name,
         tagline:            result.tagline,
         category:           result.category,
-        og_image_url:       result.thumbnailUrl,   // AI 추출 OG — 직접 업로드와 구분
-        thumbnail_url:      null,                  // 직접 업로드 전까지 null
+        og_image_url:       result.thumbnailUrl,
+        thumbnail_url:      null,
         thumbnail_path:     null,
         ai_failed:          false,
         target_audience:    result.target_audience,
@@ -96,11 +87,35 @@ export function UrlForm() {
 
       if (filledCount <= 2) {
         setWarning({ filledCount, totalCount: FILLABLE_FIELDS.length });
-        return; // 경고 화면 표시 후 사용자가 직접 진행
+        return;
       }
 
       router.push("/submit/step1");
     });
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    doFill();
+  }
+
+  function handleManualEntry() {
+    const trimmed = url.trim();
+    const normalized = trimmed
+      ? trimmed.includes("://") ? trimmed : `https://${trimmed}`
+      : null;
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
+      submission_type: "url",
+      external_url: normalized,
+      name: "", tagline: "", category: "etc",
+      thumbnail_url: null, ai_failed: true,
+      target_audience: "", problem_statement: "", solution_approach: "",
+      differentiator: "", product_stage: null, pricing_model: null,
+      feedback_categories: [], maker_note: "",
+      screenshot_urls: [], demo_video_url: null,
+      auto_filled_fields: [],
+    }));
+    router.push("/submit/step1");
   }
 
   // 로딩 중
@@ -131,6 +146,30 @@ export function UrlForm() {
             </li>
           ))}
         </ul>
+      </div>
+    );
+  }
+
+  // AI 분석 실패 화면
+  if (failure) {
+    return (
+      <div className="flex flex-1 flex-col justify-center gap-4">
+        <div className="rounded-[14px] border border-amber-200 bg-amber-50 px-5 py-5">
+          <p className="text-[15px] font-extrabold text-amber-700">⚠ AI 자동 분석에 실패했어요</p>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-60">{failure.error}</p>
+        </div>
+        <button
+          onClick={doFill}
+          className="flex h-[50px] w-full items-center justify-center rounded-[14px] bg-ink text-[14px] font-bold text-cream transition-opacity hover:opacity-90"
+        >
+          다시 시도 ✨
+        </button>
+        <button
+          onClick={handleManualEntry}
+          className="flex h-[44px] items-center justify-center rounded-[14px] border border-ink-10 text-[13px] font-semibold text-ink-60 transition-colors hover:border-ink hover:text-ink"
+        >
+          직접 입력하기
+        </button>
       </div>
     );
   }
@@ -201,7 +240,7 @@ export function UrlForm() {
         </button>
         <button
           type="button"
-          onClick={() => router.push("/submit/step1")}
+          onClick={handleManualEntry}
           className="flex h-[44px] items-center justify-center rounded-[14px] border border-ink-10 text-[13px] font-semibold text-ink-60 transition-colors hover:border-ink hover:text-ink"
         >
           URL 없이 직접 입력할게요

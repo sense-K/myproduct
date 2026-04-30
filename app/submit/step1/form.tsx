@@ -108,7 +108,7 @@ export function Step1Form() {
           setErrors((p) => ({ ...p, name: "" }));
           clearAutoFill("name");
         }}
-        placeholder="언더커버"
+        placeholder="예: 클레어 (간단한 제품명)"
         className={`mb-1 h-11 w-full rounded-[8px] border px-3 text-[13px] outline-none focus:border-ink ${
           autoFilled.includes("name")
             ? "border-amber-300 bg-amber-50 text-ink-40"
@@ -132,7 +132,7 @@ export function Step1Form() {
           setErrors((p) => ({ ...p, tagline: "" }));
           clearAutoFill("tagline");
         }}
-        placeholder="프랜차이즈 점주를 위한 익명 커뮤니티와 매출 벤치마킹 서비스"
+        placeholder="이 제품을 한 문장으로 설명해주세요"
         rows={3}
         className={`mb-1 w-full resize-none rounded-[8px] border p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
           autoFilled.includes("tagline")

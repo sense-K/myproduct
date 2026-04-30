@@ -95,6 +95,7 @@ function resolveUrl(base: string, url: string): string {
 }
 
 export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
+  const startTime = Date.now();
   const rawUrl = inputUrl.trim();
   if (!rawUrl) return { ok: false, error: "URL을 입력해주세요" };
 
@@ -102,81 +103,82 @@ export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
   try { new URL(normalized); } catch { return { ok: false, error: "올바른 URL 형식이 아니에요" }; }
   if (!isValidPublicUrl(normalized)) return { ok: false, error: "허용되지 않는 URL이에요" };
 
-  // 1. HTML fetch (타임아웃 8초)
-  let html = "";
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000);
-    try {
-      const res = await fetch(normalized, {
-        signal: ctrl.signal,
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; MyProduct-Bot/1.0; +https://myproduct.kr)" },
-      });
-      if (res.ok) html = await res.text();
-    } finally {
-      clearTimeout(timer);
-    }
-  } catch {
-    // fetch 실패 → URL만으로 Claude 호출 시도
-  }
-
-  const { title: ogTitle, desc: ogDesc, image: ogImageRaw } = extractMeta(html);
-  const ogImage = ogImageRaw ? resolveUrl(normalized, ogImageRaw) : null;
-  const pageText = extractPageContent(html);
-
-  // 2. Claude API 호출 (타임아웃 30초)
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
-
-  const anthropic = new Anthropic({ apiKey });
-
-  const prompt = [
-    "다음 제품 웹사이트 정보를 분석해서 JSON만 반환하세요. 다른 텍스트 없음.",
-    "추출 불가능한 필드는 빈 문자열 (\"\"). 절대 거짓 정보 생성 금지.",
-    "",
-    `URL: ${normalized}`,
-    `페이지 제목: ${ogTitle}`,
-    `설명: ${ogDesc}`,
-    pageText ? `\n본문 내용(일부):\n${pageText}` : "",
-    "",
-    "반환 형식 (JSON only):",
-    "{",
-    '  "name": "제품명 (2~40자)",',
-    '  "tagline": "누구를 위한, 어떤 문제 해결 한 문장 (최대 150자)",',
-    '  "category": "dev_tools|productivity|ai_data|community_content|learning|lifestyle|finance_commerce|etc",',
-    '  "target_audience": "구체적인 타겟 사용자 (최대 200자)",',
-    '  "problem_statement": "해결하는 문제 (최대 200자)",',
-    '  "solution_approach": "해결 방법 (최대 200자)",',
-    '  "differentiator": "차별점/강점 (최대 200자)",',
-    '  "product_stage": "idea|prototype|beta|launched",',
-    '  "pricing_model": "free|freemium|paid|tbd"',
-    "}",
-    "",
-    "규칙:",
-    "- product_stage: 라이브 서비스·결제·가입 가능하면 launched, 베타/테스트 중이면 beta",
-    "- pricing_model: 가격 정보 불명확하면 tbd",
-    "- 한국어 서비스면 한국어로, 영어 서비스면 영어로 작성",
-  ].filter(Boolean).join("\n");
+  console.log("[ai-fill-start]", { url: normalized, timestamp: startTime });
 
   try {
-    const aiCtrl = new AbortController();
-    const aiTimer = setTimeout(() => aiCtrl.abort(), 30000);
-    let msg;
-    try {
-      msg = await anthropic.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }],
-      });
-    } finally {
-      clearTimeout(aiTimer);
+    // 1. API key (try 안으로 이동 — 누락 시 uncaught throw 방지)
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      console.error("[ai-fill-error]", { url: normalized, code: "NO_KEY", duration: 0 });
+      return { ok: false, error: "AI 서비스를 일시적으로 이용할 수 없어요" };
     }
 
+    // 2. HTML fetch (타임아웃 8초)
+    let html = "";
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      try {
+        const res = await fetch(normalized, {
+          signal: ctrl.signal,
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; MyProduct-Bot/1.0; +https://myproduct.kr)" },
+        });
+        if (res.ok) html = await res.text();
+      } finally {
+        clearTimeout(timer);
+      }
+    } catch {
+      // fetch 실패 → URL만으로 Claude 호출 시도
+    }
+
+    const { title: ogTitle, desc: ogDesc, image: ogImageRaw } = extractMeta(html);
+    const ogImage = ogImageRaw ? resolveUrl(normalized, ogImageRaw) : null;
+    const pageText = extractPageContent(html);
+
+    // 3. Claude API 호출 (SDK 자체 timeout 30초, 1회 자동 재시도)
+    const anthropic = new Anthropic({ apiKey, maxRetries: 1, timeout: 30_000 });
+
+    const prompt = [
+      "다음 제품 웹사이트 정보를 분석해서 JSON만 반환하세요. 다른 텍스트 없음.",
+      "추출 불가능한 필드는 빈 문자열 (\"\"). 절대 거짓 정보 생성 금지.",
+      "",
+      `URL: ${normalized}`,
+      `페이지 제목: ${ogTitle}`,
+      `설명: ${ogDesc}`,
+      pageText ? `\n본문 내용(일부):\n${pageText}` : "",
+      "",
+      "반환 형식 (JSON only):",
+      "{",
+      '  "name": "제품명 (2~40자)",',
+      '  "tagline": "누구를 위한, 어떤 문제 해결 한 문장 (최대 150자)",',
+      '  "category": "dev_tools|productivity|ai_data|community_content|learning|lifestyle|finance_commerce|etc",',
+      '  "target_audience": "구체적인 타겟 사용자 (최대 200자)",',
+      '  "problem_statement": "해결하는 문제 (최대 200자)",',
+      '  "solution_approach": "해결 방법 (최대 200자)",',
+      '  "differentiator": "차별점/강점 (최대 200자)",',
+      '  "product_stage": "idea|prototype|beta|launched",',
+      '  "pricing_model": "free|freemium|paid|tbd"',
+      "}",
+      "",
+      "규칙:",
+      "- product_stage: 라이브 서비스·결제·가입 가능하면 launched, 베타/테스트 중이면 beta",
+      "- pricing_model: 가격 정보 불명확하면 tbd",
+      "- 한국어 서비스면 한국어로, 영어 서비스면 영어로 작성",
+    ].filter(Boolean).join("\n");
+
+    const msg = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 2000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    // 4. 응답 파싱
     const raw = msg.content[0]?.type === "text" ? msg.content[0].text.trim() : "";
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error("[ai-fill-error] response not parseable:", raw.slice(0, 300));
-      throw new Error("AI 응답을 파싱할 수 없어요");
+      const duration = Date.now() - startTime;
+      console.error("[ai-fill-error]", { url: normalized, code: "PARSE_FAILED", raw: raw.slice(0, 300), duration });
+      return { ok: false, error: "AI 응답 형식에 문제가 있어요. 잠시 후 다시 시도해주세요" };
     }
 
     const p = JSON.parse(jsonMatch[0]) as Record<string, string>;
@@ -198,7 +200,6 @@ export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
       ? (p.pricing_model as PricingModel)
       : null;
 
-    // 실제로 채워진 필드만 auto_filled_fields에 기록
     const auto_filled_fields: string[] = [];
     if (name)              auto_filled_fields.push("name");
     if (tagline)           auto_filled_fields.push("tagline");
@@ -210,6 +211,9 @@ export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
     if (product_stage)     auto_filled_fields.push("product_stage");
     if (pricing_model)     auto_filled_fields.push("pricing_model");
     if (ogImage)           auto_filled_fields.push("thumbnail_url");
+
+    const duration = Date.now() - startTime;
+    console.log("[ai-fill-success]", { url: normalized, filledCount: auto_filled_fields.length, duration });
 
     return {
       ok: true,
@@ -226,14 +230,26 @@ export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
       auto_filled_fields,
     };
   } catch (err) {
+    const duration = Date.now() - startTime;
     const isApiErr = err instanceof Anthropic.APIError;
+    const isTimeout = err instanceof Error && (
+      err.name === "AbortError" || err.message?.toLowerCase().includes("timeout")
+    );
+    const code = isTimeout ? "TIMEOUT" : isApiErr ? "API_FAILED" : "GENERIC";
+    const userMsg = isTimeout
+      ? "AI 응답 시간이 초과됐어요. 잠시 후 다시 시도해주세요"
+      : isApiErr
+      ? "AI 분석에 일시적으로 실패했어요. 잠시 후 다시 시도해주세요"
+      : "AI 자동 채움 중 오류가 발생했어요. 잠시 후 다시 시도해주세요";
     console.error("[ai-fill-error]", {
-      inputUrl,
+      url: normalized,
+      code,
+      name: err instanceof Error ? err.name : undefined,
+      message: err instanceof Error ? err.message : String(err),
       status: isApiErr ? err.status : undefined,
-      body: isApiErr ? JSON.stringify(err.error)?.slice(0, 300) : String(err).slice(0, 300),
-      hasApiKey: !!apiKey,
+      duration,
     });
-    return { ok: false, error: err instanceof Error ? err.message : "AI 채움 실패" };
+    return { ok: false, error: userMsg };
   }
 }
 
