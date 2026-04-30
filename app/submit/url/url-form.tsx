@@ -1,15 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { aiFillFromUrl } from "@/lib/submit/actions";
 import { DRAFT_KEY } from "../_components/types";
-
-// 8개 텍스트/enum 필드 중 채워진 수 기준 — 2개 이하면 SPA 경고
-const FILLABLE_FIELDS = [
-  "name", "tagline", "target_audience", "problem_statement",
-  "solution_approach", "differentiator", "product_stage", "pricing_model",
-] as const;
 
 const LOADING_STEPS = [
   "URL에 연결하는 중...",
@@ -18,24 +12,30 @@ const LOADING_STEPS = [
   "14개 필드를 채우는 중...",
 ];
 
-type FillWarning = { filledCount: number; totalCount: number };
 type FillFailure = { error: string };
 
 export function UrlForm() {
   const [url, setUrl] = useState("");
+  const [userDescription, setUserDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [loadingStep, setLoadingStep] = useState(0);
-  const [warning, setWarning] = useState<FillWarning | null>(null);
   const [failure, setFailure] = useState<FillFailure | null>(null);
+  const [needsDescription, setNeedsDescription] = useState(false);
+  const descriptionRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  // NEEDS_DESCRIPTION 반환 시 설명 필드로 포커스
+  useEffect(() => {
+    if (needsDescription) descriptionRef.current?.focus();
+  }, [needsDescription]);
 
   function doFill() {
     const trimmed = url.trim();
     if (!trimmed) { setError("URL을 입력해주세요"); return; }
     setError(null);
     setFailure(null);
-    setWarning(null);
+    setNeedsDescription(false);
     setLoadingStep(0);
 
     let step = 0;
@@ -45,17 +45,21 @@ export function UrlForm() {
     }, 1800);
 
     startTransition(async () => {
-      const result = await aiFillFromUrl(trimmed);
+      const desc = userDescription.trim() || undefined;
+      const result = await aiFillFromUrl(trimmed, desc);
       clearInterval(interval);
 
       const normalized = trimmed.includes("://") ? trimmed : `https://${trimmed}`;
 
       if (!result.ok) {
+        if (result.code === "NEEDS_DESCRIPTION") {
+          setNeedsDescription(true);
+          return;
+        }
         setFailure({ error: result.error });
         return;
       }
 
-      // 기존 draft 완전 덮어쓰기 (새 URL로 시작하므로 auto-overwrite)
       sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
         submission_type: "url",
         external_url: normalized,
@@ -78,17 +82,6 @@ export function UrlForm() {
         demo_video_url:     null,
         auto_filled_fields: result.auto_filled_fields,
       }));
-
-      // SPA 경고 판단 (8개 중 2개 이하 채워지면 경고)
-      const filledCount = FILLABLE_FIELDS.filter((f) => {
-        const v = (result as Record<string, unknown>)[f];
-        return v !== null && v !== undefined && v !== "";
-      }).length;
-
-      if (filledCount <= 2) {
-        setWarning({ filledCount, totalCount: FILLABLE_FIELDS.length });
-        return;
-      }
 
       router.push("/submit/step1");
     });
@@ -150,7 +143,7 @@ export function UrlForm() {
     );
   }
 
-  // AI 분석 실패 화면
+  // AI 분석 실패 화면 (NEEDS_DESCRIPTION 외 에러)
   if (failure) {
     return (
       <div className="flex flex-1 flex-col justify-center gap-4">
@@ -174,37 +167,7 @@ export function UrlForm() {
     );
   }
 
-  // SPA 경고 화면
-  if (warning) {
-    return (
-      <div className="flex flex-1 flex-col justify-center gap-4">
-        <div className="rounded-[14px] bg-accent-soft px-5 py-5">
-          <p className="text-[15px] font-extrabold text-accent">사이트에서 충분한 정보를 찾지 못했어요</p>
-          <p className="mt-2 text-[13px] leading-relaxed text-ink-60">
-            이 사이트는 React/Vue 같은 SPA(단일 페이지 앱)이거나 메타 태그가 부족할 수 있어요.
-            AI가 {warning.filledCount}/{warning.totalCount}개 필드만 채웠습니다.
-          </p>
-          <p className="mt-2 text-[12px] text-ink-40">
-            비어있는 항목을 폼에서 직접 채워주시면 돼요. AI가 채운 항목엔 ✨ 표시가 있어요.
-          </p>
-        </div>
-        <button
-          onClick={() => router.push("/submit/step1")}
-          className="flex h-[50px] w-full items-center justify-center rounded-[14px] bg-ink text-[14px] font-bold text-cream transition-opacity hover:opacity-90"
-        >
-          이해했어요, 직접 채울게요 →
-        </button>
-        <button
-          onClick={() => { setWarning(null); setUrl(""); }}
-          className="flex h-[44px] items-center justify-center rounded-[14px] border border-ink-10 text-[13px] font-semibold text-ink-60 transition-colors hover:border-ink hover:text-ink"
-        >
-          다른 URL로 다시 시도하기
-        </button>
-      </div>
-    );
-  }
-
-  // 기본 URL 입력 폼
+  // 기본 입력 폼 (NEEDS_DESCRIPTION 시 설명 필드 강조)
   return (
     <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
       <h1 className="mb-1.5 text-[22px] font-extrabold tracking-tight">어떤 걸 만들었어요?</h1>
@@ -212,23 +175,47 @@ export function UrlForm() {
         URL을 입력하면 AI가 14개 필드를 자동으로 채워드려요.
       </p>
 
+      {/* URL */}
       <label className="mb-2 block text-[12px] font-semibold text-ink-60">제품 URL</label>
       <input
         type="text"
         placeholder="https://myproduct.kr"
         value={url}
-        onChange={(e) => { setUrl(e.target.value); setError(null); }}
+        onChange={(e) => { setUrl(e.target.value); setError(null); setNeedsDescription(false); }}
         className={`h-14 w-full rounded-[14px] border-2 bg-paper px-4 text-[14px] outline-none transition-colors focus:border-accent ${
           error ? "border-accent" : "border-ink"
         }`}
-        autoFocus
+        autoFocus={!needsDescription}
       />
       {error && <p className="mt-2 text-[12px] text-accent">{error}</p>}
 
-      <div className="mt-3 text-[11px] leading-relaxed text-ink-40">
-        <strong className="text-ink-60">이런 URL 모두 가능해요:</strong>
-        <br />
-        랜딩페이지 · 앱스토어 · 깃허브 README · 디스퀴엇 · 블로그
+      {/* 한 줄 설명 */}
+      <div className="mt-4">
+        <label className="mb-1.5 flex items-center gap-1.5 text-[12px] font-semibold text-ink-60">
+          제품 한 줄 설명
+          <span className="font-normal text-ink-40">(선택)</span>
+        </label>
+        {needsDescription && (
+          <div className="mb-2 rounded-[8px] border border-amber-200 bg-amber-50 px-3 py-2.5">
+            <p className="text-[12px] font-semibold text-amber-700">이 사이트는 정보가 부족해요</p>
+            <p className="mt-0.5 text-[11px] text-amber-600">
+              제품 설명을 입력하면 AI가 더 잘 채워드려요.
+            </p>
+          </div>
+        )}
+        <input
+          ref={descriptionRef}
+          type="text"
+          value={userDescription}
+          onChange={(e) => setUserDescription(e.target.value)}
+          placeholder="예: 프리랜서를 위한 견적서 자동 생성 서비스"
+          className={`h-12 w-full rounded-[14px] border-2 bg-paper px-4 text-[13px] outline-none transition-colors focus:border-accent ${
+            needsDescription ? "border-amber-400" : "border-ink-10"
+          }`}
+        />
+        <p className="mt-1.5 text-[11px] text-ink-40">
+          AI가 더 정확히 채워드려요. SPA(React/Vue)면 꼭 입력!
+        </p>
       </div>
 
       <div className="mt-auto flex flex-col gap-3 pt-8">

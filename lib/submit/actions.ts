@@ -29,7 +29,7 @@ export type AiFillResult =
       pricing_model: PricingModel | null;
       auto_filled_fields: string[];
     }
-  | { ok: false; error: string };
+  | { ok: false; error: string; code?: string };
 
 // SSRF 방어: 공개 외부 URL만 허용
 function isValidPublicUrl(rawUrl: string): boolean {
@@ -94,7 +94,7 @@ function resolveUrl(base: string, url: string): string {
   try { return new URL(url, base).href; } catch { return url; }
 }
 
-export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
+export async function aiFillFromUrl(inputUrl: string, userDescription?: string): Promise<AiFillResult> {
   const startTime = Date.now();
   const rawUrl = inputUrl.trim();
   if (!rawUrl) return { ok: false, error: "URL을 입력해주세요" };
@@ -145,7 +145,8 @@ export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
       `URL: ${normalized}`,
       `페이지 제목: ${ogTitle}`,
       `설명: ${ogDesc}`,
-      pageText ? `\n본문 내용(일부):\n${pageText}` : "",
+      pageText ? `\n페이지 본문(일부):\n${pageText}` : "",
+      userDescription ? `\n[제작자가 직접 제공한 설명 — HTML이 빈약하면 이것을 우선 활용]\n${userDescription}` : "",
       "",
       "반환 형식 (JSON only):",
       "{",
@@ -212,8 +213,18 @@ export async function aiFillFromUrl(inputUrl: string): Promise<AiFillResult> {
     if (pricing_model)     auto_filled_fields.push("pricing_model");
     if (ogImage)           auto_filled_fields.push("thumbnail_url");
 
+    // SPA 감지: 필드가 2개 이하이고 설명도 없으면 추가 입력 요청
+    const filledCount = [name, tagline, target_audience, problem_statement, solution_approach, differentiator, product_stage, pricing_model]
+      .filter((v) => v !== null && v !== undefined && v !== "")
+      .length;
+    if (filledCount <= 2 && !userDescription) {
+      const duration = Date.now() - startTime;
+      console.log("[ai-fill-needs-description]", { url: normalized, filledCount, duration });
+      return { ok: false, error: "이 사이트는 정보가 부족해요. 제품 설명을 입력하면 AI가 더 잘 채워드려요.", code: "NEEDS_DESCRIPTION" };
+    }
+
     const duration = Date.now() - startTime;
-    console.log("[ai-fill-success]", { url: normalized, filledCount: auto_filled_fields.length, duration });
+    console.log("[ai-fill-success]", { url: normalized, filledCount, duration });
 
     return {
       ok: true,
