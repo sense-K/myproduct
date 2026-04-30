@@ -21,6 +21,8 @@ export function Step1Form() {
 
   useEffect(() => {
     const d = loadDraft();
+    console.log("loaded draft:", d);
+    console.log("name check:", d.name, typeof d.name);
     if (typeof d.name === "string") setName(d.name);
     if (typeof d.tagline === "string") setTagline(d.tagline);
     if (d.category) setCategory(d.category);
