@@ -44,24 +44,35 @@ export async function uploadProductImage(
   const path = `products/${uploadId}/${filename}`;
 
   // 4. service_role로 업로드 (RLS 우회)
-  const admin = createAdminClient();
-  const buffer = await file.arrayBuffer();
+  try {
+    const admin = createAdminClient();
+    const buffer = await file.arrayBuffer();
 
-  const { error: uploadError } = await admin.storage
-    .from(BUCKET)
-    .upload(path, buffer, {
-      contentType: file.type,
-      upsert: true,
+    const { error: uploadError } = await admin.storage
+      .from(BUCKET)
+      .upload(path, buffer, {
+        contentType: file.type,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("[upload] storage error:", uploadError.message);
+      return { ok: false, error: "업로드에 실패했어요. 잠시 후 다시 시도해주세요" };
+    }
+
+    // 5. public URL 반환
+    const { data: { publicUrl } } = admin.storage.from(BUCKET).getPublicUrl(path);
+    return { ok: true, url: publicUrl, path };
+  } catch (e: unknown) {
+    const err = e as { name?: string; message?: string; stack?: string; cause?: unknown };
+    console.error("[UPLOAD ERROR]", {
+      name: err?.name,
+      message: err?.message,
+      stack: err?.stack,
+      cause: err?.cause,
     });
-
-  if (uploadError) {
-    console.error("[upload] storage error:", uploadError.message);
-    return { ok: false, error: "업로드에 실패했어요. 잠시 후 다시 시도해주세요" };
+    throw e;
   }
-
-  // 5. public URL 반환
-  const { data: { publicUrl } } = admin.storage.from(BUCKET).getPublicUrl(path);
-  return { ok: true, url: publicUrl, path };
 }
 
 // ─── 이미지 삭제 ────────────────────────────────────────────────────────────
