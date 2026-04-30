@@ -136,7 +136,13 @@ export async function aiFillFromUrl(inputUrl: string, userDescription?: string):
     const pageText = extractPageContent(html);
 
     // 3. Claude API 호출 (SDK 자체 timeout 30초, 1회 자동 재시도)
-    const anthropic = new Anthropic({ apiKey, maxRetries: 1, timeout: 30_000 });
+    // baseURL: CF AI Gateway 경유 시 환경변수로 주입, 없으면 Anthropic 직접 호출
+    const gatewayUrl = process.env.ANTHROPIC_BASE_URL || undefined;
+    console.log("[ai-fill-debug]", {
+      baseURL: gatewayUrl ?? "direct",
+      hasGateway: !!gatewayUrl,
+    });
+    const anthropic = new Anthropic({ apiKey, baseURL: gatewayUrl, maxRetries: 1, timeout: 30_000 });
 
     const prompt = [
       "다음 제품 웹사이트 정보를 분석해서 JSON만 반환하세요. 다른 텍스트 없음.",
