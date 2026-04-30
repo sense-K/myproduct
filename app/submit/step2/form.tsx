@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { loadDraft, saveDraft } from "../_components/types";
 
 function AiBadge() {
-  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추측</span>;
+  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추천 — 확인 후 수정 가능</span>;
 }
 
 export function Step2Form() {
@@ -20,9 +20,9 @@ export function Step2Form() {
   useEffect(() => {
     const d = loadDraft();
     if (!d.name) { router.replace("/submit/step1"); return; }
-    if (d.target_audience) setAudience(d.target_audience);
-    if (d.problem_statement) setProblem(d.problem_statement);
-    if (d.solution_approach) setSolution(d.solution_approach);
+    if (typeof d.target_audience === "string") setAudience(d.target_audience);
+    if (typeof d.problem_statement === "string") setProblem(d.problem_statement);
+    if (typeof d.solution_approach === "string") setSolution(d.solution_approach);
     setAutoFilled(d.auto_filled_fields ?? []);
     // URL 경로(AI 채움)로 온 경우 3개 필드를 선택으로 처리
     setIsUrlPath(d.submission_type === "url");
@@ -65,8 +65,10 @@ export function Step2Form() {
   );
 
   const fieldClass = (key: string, aiField: string) =>
-    `w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
-      autoFilled.includes(aiField) ? "border-amber-300 bg-amber-50/40" : errors[key] ? "border-accent" : "border-ink-10"
+    `w-full resize-none rounded-[8px] border p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
+      autoFilled.includes(aiField)
+        ? "border-amber-300 bg-amber-50 text-ink-40"
+        : `bg-paper ${errors[key] ? "border-accent" : "border-ink-10"}`
     }`;
 
   return (
@@ -108,6 +110,7 @@ export function Step2Form() {
       <textarea
         value={audience}
         maxLength={200}
+        onFocus={() => clearAutoFill("target_audience")}
         onChange={(e) => { setAudience(e.target.value); setErrors((p) => ({ ...p, audience: "" })); clearAutoFill("target_audience"); }}
         placeholder="혼자 사이드프로젝트를 만드는 인디 메이커. 첫 제품 공개 전 피드백이 필요한데 어디 물을 곳 없는 사람"
         rows={3}
@@ -125,6 +128,7 @@ export function Step2Form() {
       <textarea
         value={problem}
         maxLength={200}
+        onFocus={() => clearAutoFill("problem_statement")}
         onChange={(e) => { setProblem(e.target.value); setErrors((p) => ({ ...p, problem: "" })); clearAutoFill("problem_statement"); }}
         placeholder="공개하면 아이디어 도용당할까 두려움, 어디서 피드백을 받을지 모름, 무엇을 개선해야 할지 판단이 안 섬"
         rows={3}
@@ -142,6 +146,7 @@ export function Step2Form() {
       <textarea
         value={solution}
         maxLength={200}
+        onFocus={() => clearAutoFill("solution_approach")}
         onChange={(e) => { setSolution(e.target.value); setErrors((p) => ({ ...p, solution: "" })); clearAutoFill("solution_approach"); }}
         placeholder="공개 즉시 등록 증명서 발급해 아이디어 선점 시점 인정. 메이커들의 구조화된 피드백으로 개선 방향 제공"
         rows={3}

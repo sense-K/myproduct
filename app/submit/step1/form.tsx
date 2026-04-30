@@ -7,7 +7,7 @@ import type { Category } from "@/lib/constants/user";
 import { loadDraft, saveDraft } from "../_components/types";
 
 function AiBadge() {
-  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추측</span>;
+  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추천 — 확인 후 수정 가능</span>;
 }
 
 export function Step1Form() {
@@ -21,8 +21,8 @@ export function Step1Form() {
 
   useEffect(() => {
     const d = loadDraft();
-    if (d.name) setName(d.name);
-    if (d.tagline) setTagline(d.tagline);
+    if (typeof d.name === "string") setName(d.name);
+    if (typeof d.tagline === "string") setTagline(d.tagline);
     if (d.category) setCategory(d.category);
     if (d.external_url) setExternalUrl(d.external_url);
     setAutoFilled(d.auto_filled_fields ?? []);
@@ -100,14 +100,17 @@ export function Step1Form() {
         type="text"
         value={name}
         maxLength={40}
+        onFocus={() => clearAutoFill("name")}
         onChange={(e) => {
           setName(e.target.value);
           setErrors((p) => ({ ...p, name: "" }));
           clearAutoFill("name");
         }}
         placeholder="언더커버"
-        className={`mb-1 h-11 w-full rounded-[8px] border bg-paper px-3 text-[13px] outline-none focus:border-ink ${
-          autoFilled.includes("name") ? "border-amber-300 bg-amber-50/40" : errors.name ? "border-accent" : "border-ink-10"
+        className={`mb-1 h-11 w-full rounded-[8px] border px-3 text-[13px] outline-none focus:border-ink ${
+          autoFilled.includes("name")
+            ? "border-amber-300 bg-amber-50 text-ink-40"
+            : `bg-paper ${errors.name ? "border-accent" : "border-ink-10"}`
         }`}
       />
       {errors.name && <p className="mb-1 text-[11px] text-accent">{errors.name}</p>}
@@ -121,6 +124,7 @@ export function Step1Form() {
       <textarea
         value={tagline}
         maxLength={150}
+        onFocus={() => clearAutoFill("tagline")}
         onChange={(e) => {
           setTagline(e.target.value);
           setErrors((p) => ({ ...p, tagline: "" }));
@@ -128,8 +132,10 @@ export function Step1Form() {
         }}
         placeholder="프랜차이즈 점주를 위한 익명 커뮤니티와 매출 벤치마킹 서비스"
         rows={3}
-        className={`mb-1 w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
-          autoFilled.includes("tagline") ? "border-amber-300 bg-amber-50/40" : errors.tagline ? "border-accent" : "border-ink-10"
+        className={`mb-1 w-full resize-none rounded-[8px] border p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
+          autoFilled.includes("tagline")
+            ? "border-amber-300 bg-amber-50 text-ink-40"
+            : `bg-paper ${errors.tagline ? "border-accent" : "border-ink-10"}`
         }`}
       />
       {errors.tagline && <p className="mb-1 text-[11px] text-accent">{errors.tagline}</p>}

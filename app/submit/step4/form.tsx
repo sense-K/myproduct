@@ -14,7 +14,7 @@ import {
 } from "../_components/types";
 
 function AiBadge() {
-  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추측</span>;
+  return <span className="ml-1.5 text-[10px] font-medium text-amber-600">✨ AI 추천 — 확인 후 수정 가능</span>;
 }
 
 export function Step4Form() {
@@ -29,11 +29,11 @@ export function Step4Form() {
   useEffect(() => {
     const d = loadDraft();
     if (!d.name) { router.replace("/submit/step1"); return; }
-    if (d.differentiator) setDifferentiator(d.differentiator);
+    if (typeof d.differentiator === "string") setDifferentiator(d.differentiator);
     if (d.product_stage) setProductStage(d.product_stage);
     if (d.pricing_model) setPricingModel(d.pricing_model);
     if (d.feedback_categories?.length) setFeedbackCats(d.feedback_categories);
-    if (d.maker_note) setMakerNote(d.maker_note);
+    if (typeof d.maker_note === "string") setMakerNote(d.maker_note);
     setAutoFilled(d.auto_filled_fields ?? []);
   }, [router]);
 
@@ -101,11 +101,14 @@ export function Step4Form() {
       <textarea
         value={differentiator}
         maxLength={200}
+        onFocus={() => clearAutoFill("differentiator")}
         onChange={(e) => { setDifferentiator(e.target.value); clearAutoFill("differentiator"); }}
         placeholder="경쟁 서비스 대비 무엇이 다른지, 어떤 강점이 있는지 한 단락으로 설명해주세요."
         rows={3}
-        className={`mb-1 w-full resize-none rounded-[8px] border bg-paper p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
-          autoFilled.includes("differentiator") ? "border-amber-300 bg-amber-50/40" : "border-ink-10"
+        className={`mb-1 w-full resize-none rounded-[8px] border p-3 text-[13px] leading-relaxed outline-none focus:border-ink ${
+          autoFilled.includes("differentiator")
+            ? "border-amber-300 bg-amber-50 text-ink-40"
+            : "bg-paper border-ink-10"
         }`}
       />
       <p className="mb-4 text-right text-[11px] text-ink-40">{differentiator.length}/200</p>
