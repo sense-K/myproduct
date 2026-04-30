@@ -220,7 +220,7 @@ export async function aiFillFromUrl(inputUrl: string, userDescription?: string):
     if (filledCount <= 2 && !userDescription) {
       const duration = Date.now() - startTime;
       console.log("[ai-fill-needs-description]", { url: normalized, filledCount, duration });
-      return { ok: false, error: "이 사이트는 정보가 부족해요. 제품 설명을 입력하면 AI가 더 잘 채워드려요.", code: "NEEDS_DESCRIPTION" };
+      return { ok: false, error: "이 사이트는 정보가 적어요. 한 줄 설명을 입력해주시면 AI가 채워드려요.", code: "NEEDS_DESCRIPTION" };
     }
 
     const duration = Date.now() - startTime;

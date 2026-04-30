@@ -197,9 +197,12 @@ export function UrlForm() {
         </label>
         {needsDescription && (
           <div className="mb-2 rounded-[8px] border border-amber-200 bg-amber-50 px-3 py-2.5">
-            <p className="text-[12px] font-semibold text-amber-700">이 사이트는 정보가 부족해요</p>
+            <p className="text-[12px] font-semibold text-amber-700">사이트에서 정보를 충분히 찾지 못했어요</p>
             <p className="mt-0.5 text-[11px] text-amber-600">
-              제품 설명을 입력하면 AI가 더 잘 채워드려요.
+              제품을 한 문장으로 적어주시면 AI가 그 설명을 바탕으로 채워드릴게요
+            </p>
+            <p className="mt-1 text-[11px] text-amber-500">
+              예: '메이커가 사이드프로젝트 등록하고 피드백 받는 플랫폼'
             </p>
           </div>
         )}
@@ -214,7 +217,7 @@ export function UrlForm() {
           }`}
         />
         <p className="mt-1.5 text-[11px] text-ink-40">
-          AI가 더 정확히 채워드려요. SPA(React/Vue)면 꼭 입력!
+          제품을 한 문장으로 적어주시면 AI가 더 정확히 채워드려요
         </p>
       </div>
 
