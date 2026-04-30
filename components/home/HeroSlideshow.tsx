@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 const SLIDES = [
   {
     emoji: "💬",
-    title: "진짜 피드백을 받아보세요",
+    title: "직접 만든 프로젝트를 등록하고 진짜 피드백을 받아보세요",
     subhead: '"좋아요" 말고, 무엇이 좋고 무엇을 고쳐야 하는지',
     details: [
       "4개 섹션 10문항의 구조화된 평가",

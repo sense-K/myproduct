@@ -24,16 +24,16 @@ export function HeroSection({ isLoggedIn }: Props) {
               공개 즉시 발급되는 등록 증명서가 아이디어를 보호합니다.
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
+            <div className="mt-7 flex flex-row gap-3">
               <Link
                 href={isLoggedIn ? "/submit/intro" : "/login?next=/submit/intro"}
-                className="flex h-[50px] flex-1 items-center justify-center rounded-[14px] bg-accent text-[14px] font-bold text-white transition-opacity hover:opacity-90"
+                className="flex h-[54px] flex-1 items-center justify-center rounded-[14px] bg-accent text-[14px] font-bold text-white transition-opacity hover:opacity-90"
               >
                 내 프로젝트 등록하기
               </Link>
               <Link
                 href="/feed"
-                className="flex h-[50px] flex-1 items-center justify-center rounded-[14px] border border-ink-10 text-[13px] font-semibold text-ink transition-colors hover:border-ink"
+                className="flex h-[54px] flex-1 items-center justify-center rounded-[14px] border border-ink-10 text-[13px] font-semibold text-ink transition-colors hover:border-ink"
               >
                 다른 작품 둘러보기
               </Link>
