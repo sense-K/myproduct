@@ -1,3 +1,7 @@
+> ⚠️ **이 문서는 Phase 1 초기 기획서이며 구현 완료 후 동결되었습니다.**
+> 현재 비전과 다음 단계는 [VISION.md](./VISION.md)를 참조하세요.
+> 이 문서는 역사적 참고용으로만 보존됩니다.
+
 # 마이프로덕트 (MyProduct) — Product Requirements Document
 
 **Version**: 1.0
